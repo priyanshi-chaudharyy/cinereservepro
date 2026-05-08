@@ -1,24 +1,48 @@
 import axios from 'axios';
 
-const API=axios.create({
-    baseURL:import.meta.env.VITE_API_URL || 'https://localhost:5000/api',
-    withCredientials:true
+const API = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    withCredentials: true
 });
 
 //Movie APIs
-export const movieAPI={
-    getAll:(params)=>API.get('/movies',{params}),
-    getById:(id)=>API.get(`/movies/${id}`),
-    create:(data)=>API.post('/movies',data),
-    update:(id,data)=> API.put(`/movies/${id}`,data),
-    delete:(id)=>API.delete(`/movies/${id}`)
+export const movieAPI = {
+    getAll: (params) => API.get('/movies', { params }),
+    getById: (id) => API.get(`/movies/${id}`),
+    create: (data) => API.post('/movies', data),
+    update: (id, data) => API.put(`/movies/${id}`, data),
+    delete: (id) => API.delete(`/movies/${id}`),
+    getReviews: (id) => API.get(`/movies/${id}/reviews`),
+    addReview: (id, data) => API.post(`/movies/${id}/reviews`, data)
 };
 
 //Theater APIs
-export const theaterAPI={
-    getAll:()=> API.get('/theater'),
-    getById:(id)=>API.get(`/theater/${id}`),
-    create:(data)=>API.post('/theater',data)
+export const theaterAPI = {
+    getAll: () => API.get('/theaters'),
+    getById: (id) => API.get(`/theaters/${id}`),
+    create: (data) => API.post('/theaters', data),
+    getLocations: () => API.get('/theaters/locations')
+};
+
+// Showtime APIs
+export const showtimeAPI = {
+    getAll: (params) => API.get('/showtimes', { params }),
+    getById: (id) => API.get(`/showtimes/${id}`),
+    create: (data) => API.post('/showtimes', data)
+};
+
+// Payment APIs
+export const paymentAPI = {
+    createOrder: (data) => API.post('/payments/create-order', data),
+    verifyPayment: (data) => API.post('/payments/verify-payment', data)
+};
+
+// Booking APIs
+export const bookingAPI = {
+    getMyBookings: () => API.get('/bookings/my'),
+    getById: (id) => API.get(`/bookings/${id}`),
+    cancelBooking: (id) => API.put(`/bookings/${id}/cancel`),
+    checkInBooking: (id) => API.put(`/bookings/${id}/checkin`)
 };
 
 export default API;

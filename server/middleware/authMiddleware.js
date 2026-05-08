@@ -43,7 +43,7 @@ export const protect=async (req,res,next)=>{
     }
 };
 
-//Admin only access
+//Admin only access (super admin)
 export const adminOnly=(req,res,next)=>{
     if(req.user && req.user.role =='admin'){
         next();
@@ -51,6 +51,37 @@ export const adminOnly=(req,res,next)=>{
         res.status(403).json({
             success:false,
             message:'Access denied. Admin only'
+        });
+    }
+};
+
+// Theater Admin OR Super Admin access
+export const theaterAdminOrAdmin = (req, res, next) => {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'theater_admin')) {
+        // Theater admins must be approved first
+        if (req.user.role === 'theater_admin' && !req.user.isApproved) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your cinema account is pending approval by the platform admin.'
+            });
+        }
+        next();
+    } else {
+        res.status(403).json({
+            success: false,
+            message: 'Access denied. Theater admin or admin only.'
+        });
+    }
+};
+
+// Staff access (staff, theater admin, admin)
+export const staffAccess = (req, res, next) => {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'theater_admin' || req.user.role === 'staff')) {
+        next();
+    } else {
+        res.status(403).json({
+            success: false,
+            message: 'Access denied. Authorized staff only.'
         });
     }
 };

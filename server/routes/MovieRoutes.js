@@ -19,4 +19,9 @@ router.route('/:id')
    .put(protect,adminOnly,updateMovie)
    .delete(protect,adminOnly,deleteMovie);
 
-   export default router;
+import { addReview, getReviews } from '../controllers/movieController.js';
+router.route('/:id/reviews')
+   .get(getReviews)
+   .post(protect, addReview);
+
+export default router;

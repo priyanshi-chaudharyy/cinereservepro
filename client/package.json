@@ -12,8 +12,12 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.19",
     "axios": "^1.13.2",
+    "firebase": "^12.10.0",
     "framer-motion": "^12.27.0",
+    "html5-qrcode": "^2.3.8",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.562.0",
+    "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",

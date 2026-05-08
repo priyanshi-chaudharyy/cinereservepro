@@ -5,16 +5,16 @@ import {
     getShowtimeById,
     deleteShowtime
 } from '../controllers/showtimeController.js';
-import {protect,adminOnly} from '../middleware/authMiddleware.js';
+import { protect, theaterAdminOrAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
    .get(getAllShowtimes)
-   .post(protect,adminOnly,createShowtime);
+   .post(protect, theaterAdminOrAdmin, createShowtime);
 
 router.route('/:id')
   .get(getShowtimeById)
-  .delete(protect,adminOnly,deleteShowtime);
+  .delete(protect, theaterAdminOrAdmin, deleteShowtime);
 
 export default router;

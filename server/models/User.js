@@ -26,8 +26,16 @@ const userSchema =new mongoose.Schema({
     },
     role:{
         type:String,
-        enum:['user','admin'],
+        enum:['user','admin','theater_admin','staff'],
         default:'user'
+    },
+    isApproved:{
+        type:Boolean,
+        default:true  // Regular users are auto-approved; theater_admins set to false on signup
+    },
+    businessName:{
+        type:String,
+        trim:true  // Cinema chain name like "PVR Cinemas"
     },
     profilePicture:String,
     bookingHistory:[{
