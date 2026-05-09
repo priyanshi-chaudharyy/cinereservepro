@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import movieRoutes from './routes/movieRoutes.js';
+import movieRoutes from './routes/MovieRoutes.js';
 import theaterRoutes from './routes/theaterRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import showtimeRoutes from './routes/showtimeRoutes.js';
