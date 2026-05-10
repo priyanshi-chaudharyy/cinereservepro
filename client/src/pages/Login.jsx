@@ -18,6 +18,7 @@ export default function Login() {
         try {
             const res = await api.post('/api/auth/login', formData);
             const { role } = res.data.data;
+            if (res.data.token) localStorage.setItem('token', res.data.token);
             toast.success(`Welcome back! 👋`);
             if (role === 'admin') {
                 navigate('/admin/add-movie');
@@ -50,6 +51,7 @@ export default function Login() {
             // Send to our new backend route (we will create this in Step 5!)
             const res = await api.post('/api/auth/google', userData);
             const { role } = res.data.data;
+            if (res.data.token) localStorage.setItem('token', res.data.token);
 
             toast.success(`Welcome ${user.displayName}!`);
 

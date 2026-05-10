@@ -283,9 +283,7 @@ export const googleLogin = async (req, res) => {
 
         //4. Set the HTTP-only cookie identical to normal login
         res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            ...baseCookieOptions,
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
 

@@ -69,6 +69,7 @@ export default function Layout() {
   const handleLogout = async () => {
     try {
       await api.post('/api/auth/logout');
+      localStorage.removeItem('token');
       setUser(null);
       toast.success('Logged out successfully');
       navigate('/');

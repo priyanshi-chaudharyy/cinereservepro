@@ -23,6 +23,7 @@ export default function Signup() {
             }
 
             const res = await api.post('/api/auth/signup', payload);
+            if (res.data.token) localStorage.setItem('token', res.data.token);
             if (isCinemaPartner) {
                 toast.success('Registration submitted! Awaiting admin approval.', { duration: 5000 });
                 navigate('/login');
