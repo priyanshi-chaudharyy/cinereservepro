@@ -119,10 +119,10 @@ export const createShowtime = async (req, res) => {
 //@access Public
 export const getAllShowtimes = async (req, res) => {
     try {
-        const { movieId, theaterId, showDate } = req.query;
+        const { movieId, movie, theaterId, showDate } = req.query;
 
         const filter = {};
-        if (movieId) filter.movieId = movieId;
+        if (movieId || movie) filter.movieId = movieId || movie;
         if (theaterId) filter.theaterId = theaterId;
         if (showDate) {
             const date = new Date(showDate);
