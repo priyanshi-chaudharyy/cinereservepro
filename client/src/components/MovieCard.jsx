@@ -9,6 +9,7 @@ export default function MovieCard({ movie }) {
           <img
             src={movie.posterUrl}
             alt={movie.title}
+            onError={(e) => { e.currentTarget.src = `https://placehold.co/400x600/101018/e50914?text=${encodeURIComponent(movie.title)}`; e.currentTarget.onerror = null; }}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.45s ease' }}
             onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
