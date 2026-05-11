@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { movieAPI, showtimeAPI } from '../services/api';
 import api from '../api/axios';
@@ -29,6 +29,8 @@ function StarRatingInput({ rating, setRating }) {
 export default function MovieDetails() {
     const { movieId } = useParams();
     const navigate = useNavigate();
+    const locationState = useLocation();
+    const userLocation = locationState.state?.location;
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTheater, setSelectedTheater] = useState('');
     const [reviewRating, setReviewRating] = useState(10);
@@ -112,17 +114,26 @@ export default function MovieDetails() {
         return sorted;
     }, [showtimes, selectedDate]);
 
-    // Extract unique theaters from filtered showtimes
+    // Extract unique theaters from filtered showtimes (and respect user location filter if any)
     const theaters = useMemo(() => {
         if (!showtimes) return [];
         const theaterMap = new Map();
         showtimes.forEach(s => {
             if (s.theaterId && !theaterMap.has(s.theaterId._id)) {
-                theaterMap.set(s.theaterId._id, s.theaterId.name);
+                if (!userLocation || s.theaterId.location.city === userLocation) {
+                    theaterMap.set(s.theaterId._id, s.theaterId.name);
+                }
             }
         });
-        return [...theaterMap.entries()]; // [[id, name], ...]
-    }, [showtimes]);
+        
+        // Auto-select first theater if none selected and we have options
+        const entries = [...theaterMap.entries()];
+        if (entries.length > 0 && !selectedTheater) {
+            setSelectedTheater(entries[0][0]);
+        }
+        
+        return entries; // [[id, name], ...]
+    }, [showtimes, userLocation, selectedTheater]);
 
     // Filter showtimes by selected date and theater
     const filteredShowtimes = useMemo(() => {

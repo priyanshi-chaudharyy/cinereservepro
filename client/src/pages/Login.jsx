@@ -7,6 +7,7 @@ import { signInWithPopup } from 'firebase/auth';
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ export default function Login() {
         try {
             const res = await api.post('/api/auth/login', formData);
             const { role } = res.data.data;
-            if (res.data.token) localStorage.setItem('token', res.data.token);
+            if (res.data.token) sessionStorage.setItem('token', res.data.token);
             toast.success(`Welcome back! 👋`);
             if (role === 'admin') {
                 navigate('/admin/add-movie');
@@ -51,7 +52,7 @@ export default function Login() {
             // Send to our new backend route (we will create this in Step 5!)
             const res = await api.post('/api/auth/google', userData);
             const { role } = res.data.data;
-            if (res.data.token) localStorage.setItem('token', res.data.token);
+            if (res.data.token) sessionStorage.setItem('token', res.data.token);
 
             toast.success(`Welcome ${user.displayName}!`);
 
@@ -108,17 +109,40 @@ export default function Login() {
                     </div>
 
                     <div>
-                        <label style={labelStyle}>Password</label>
-                        <input
-                            className="input-base"
-                            type="password"
-                            name="password"
-                            placeholder="••••••••"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            autoComplete="current-password"
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label style={labelStyle}>Password</label>
+                        </div>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                className="input-base"
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                autoComplete="current-password"
+                                style={{ paddingRight: '2.5rem' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '0.8rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--text-muted)',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    padding: '0.2rem'
+                                }}
+                            >
+                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                            </button>
+                        </div>
                     </div>
 
                     <button

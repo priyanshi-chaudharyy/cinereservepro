@@ -180,6 +180,12 @@ export const addReview = async (req, res) => {
             return res.status(400).json({ success: false, message: 'You have already reviewed this movie' });
         }
 
+        const { default: Booking } = await import('../models/Booking.js');
+        const hasTicket = await Booking.findOne({ userId: req.user._id, movieId, status: 'Confirmed' });
+        if (!hasTicket) {
+            return res.status(403).json({ success: false, message: 'Only users who have purchased a ticket can review this movie.' });
+        }
+
         const review = await Review.create({
             movieId,
             userId: req.user._id,
@@ -192,7 +198,8 @@ export const addReview = async (req, res) => {
         const avg = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
 
         await Movie.findByIdAndUpdate(movieId, {
-            averageRating: avg.toFixed(1),
+            rating: Number(avg.toFixed(1)),
+            averageRating: Number(avg.toFixed(1)),
             totalReviews: reviews.length
         });
 

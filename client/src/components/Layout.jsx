@@ -70,6 +70,7 @@ export default function Layout() {
     try {
       await api.post('/api/auth/logout');
       localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
       setUser(null);
       toast.success('Logged out successfully');
       navigate('/');
@@ -122,6 +123,9 @@ export default function Layout() {
                 )}
                 {user.role === 'theater_admin' && (
                   <NavPill to="/admin" label="🏛️ Partner Panel" active={isAdmin} accent />
+                )}
+                {user.role === 'staff' && (
+                  <NavPill to="/scanner" label="📱 Scanner" active={location.pathname === '/scanner'} accent />
                 )}
 
                 {/* User profile pill with hover dropdown */}

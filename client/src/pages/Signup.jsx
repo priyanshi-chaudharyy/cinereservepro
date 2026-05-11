@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 
 export default function Signup() {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', businessName: '' });
-    const [isCinemaPartner, setIsCinemaPartner] = useState(false);
+    const [accountType, setAccountType] = useState('user'); // 'user', 'theater_admin', 'staff'
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -16,17 +17,24 @@ export default function Signup() {
         setLoading(true);
         try {
             const payload = { ...formData };
-            if (isCinemaPartner) {
+            if (accountType === 'theater_admin') {
                 payload.role = 'theater_admin';
+            } else if (accountType === 'staff') {
+                payload.role = 'staff';
+                delete payload.businessName;
             } else {
+                payload.role = 'user';
                 delete payload.businessName;
             }
 
             const res = await api.post('/api/auth/signup', payload);
-            if (res.data.token) localStorage.setItem('token', res.data.token);
-            if (isCinemaPartner) {
+            if (res.data.token) sessionStorage.setItem('token', res.data.token);
+            if (accountType === 'theater_admin') {
                 toast.success('Registration submitted! Awaiting admin approval.', { duration: 5000 });
                 navigate('/login');
+            } else if (accountType === 'staff') {
+                toast.success('Staff account created!');
+                navigate('/scanner');
             } else {
                 toast.success('Account created successfully! 🎉');
                 navigate('/');
@@ -62,39 +70,48 @@ export default function Signup() {
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Join Cinereserve Pro today</p>
                 </div>
 
-                {/* Cinema Partner Toggle */}
+                {/* Account Type Tabs */}
                 <div style={{
                     display: 'flex', borderRadius: 'var(--radius-sm)', overflow: 'hidden',
                     border: '1px solid var(--border)', marginBottom: '1.5rem'
                 }}>
-                    <button type="button" onClick={() => setIsCinemaPartner(false)} style={{
-                        flex: 1, padding: '0.6rem', border: 'none', cursor: 'pointer',
-                        fontWeight: 600, fontSize: '0.8rem', transition: 'all 0.2s',
-                        background: !isCinemaPartner ? 'rgba(229,9,20,0.2)' : 'transparent',
-                        color: !isCinemaPartner ? '#fff' : 'var(--text-muted)',
-                        borderBottom: !isCinemaPartner ? '2px solid var(--red-light)' : '2px solid transparent',
+                    <button type="button" onClick={() => setAccountType('user')} style={{
+                        flex: 1, padding: '0.6rem 0.2rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 600, fontSize: '0.75rem', transition: 'all 0.2s',
+                        background: accountType === 'user' ? 'rgba(229,9,20,0.2)' : 'transparent',
+                        color: accountType === 'user' ? '#fff' : 'var(--text-muted)',
+                        borderBottom: accountType === 'user' ? '2px solid var(--red-light)' : '2px solid transparent',
                     }}>
-                        🎟 Movie Goer
+                        🎟 User
                     </button>
-                    <button type="button" onClick={() => setIsCinemaPartner(true)} style={{
-                        flex: 1, padding: '0.6rem', border: 'none', cursor: 'pointer',
-                        fontWeight: 600, fontSize: '0.8rem', transition: 'all 0.2s',
-                        background: isCinemaPartner ? 'rgba(229,9,20,0.2)' : 'transparent',
-                        color: isCinemaPartner ? '#fff' : 'var(--text-muted)',
-                        borderBottom: isCinemaPartner ? '2px solid var(--red-light)' : '2px solid transparent',
+                    <button type="button" onClick={() => setAccountType('staff')} style={{
+                        flex: 1, padding: '0.6rem 0.2rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 600, fontSize: '0.75rem', transition: 'all 0.2s',
+                        background: accountType === 'staff' ? 'rgba(229,9,20,0.2)' : 'transparent',
+                        color: accountType === 'staff' ? '#fff' : 'var(--text-muted)',
+                        borderBottom: accountType === 'staff' ? '2px solid var(--red-light)' : '2px solid transparent',
                     }}>
-                        🏛️ Cinema Partner
+                        🎫 Staff
+                    </button>
+                    <button type="button" onClick={() => setAccountType('theater_admin')} style={{
+                        flex: 1, padding: '0.6rem 0.2rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 600, fontSize: '0.75rem', transition: 'all 0.2s',
+                        background: accountType === 'theater_admin' ? 'rgba(229,9,20,0.2)' : 'transparent',
+                        color: accountType === 'theater_admin' ? '#fff' : 'var(--text-muted)',
+                        borderBottom: accountType === 'theater_admin' ? '2px solid var(--red-light)' : '2px solid transparent',
+                    }}>
+                        🏛️ Partner
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                     <div>
-                        <label style={labelStyle}>{isCinemaPartner ? 'Contact Person Name' : 'Full Name'}</label>
+                        <label style={labelStyle}>{accountType === 'theater_admin' ? 'Contact Person Name' : 'Full Name'}</label>
                         <input
                             className="input-base"
                             type="text"
                             name="name"
-                            placeholder={isCinemaPartner ? 'Manager name' : 'John Doe'}
+                            placeholder={accountType === 'theater_admin' ? 'Manager name' : 'John Doe'}
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -102,7 +119,7 @@ export default function Signup() {
                         />
                     </div>
 
-                    {isCinemaPartner && (
+                    {accountType === 'theater_admin' && (
                         <div>
                             <label style={labelStyle}>Cinema / Business Name</label>
                             <input
@@ -148,17 +165,38 @@ export default function Signup() {
 
                     <div>
                         <label style={labelStyle}>Password</label>
-                        <input
-                            className="input-base"
-                            type="password"
-                            name="password"
-                            placeholder="••••••••"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            minLength={6}
-                            autoComplete="new-password"
-                        />
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                className="input-base"
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                placeholder="Min. 6 characters"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                minLength="6"
+                                autoComplete="new-password"
+                                style={{ paddingRight: '2.5rem' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '0.8rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--text-muted)',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    padding: '0.2rem'
+                                }}
+                            >
+                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                            </button>
+                        </div>
                     </div>
 
                     <button

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { movieAPI, theaterAPI } from '../services/api';
 import api from '../api/axios';
 import MovieCard from '../components/MovieCard';
+import { useNavigate } from 'react-router-dom';
 
 const GENRES = ["Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller", "Animation", "Adventure", "Documentary"];
 const LANGUAGES = ["English", "Hindi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali"];
@@ -310,7 +311,7 @@ export default function Home() {
                     <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Try adjusting your filters</p>
                   </div>
                 )
-                : movies?.map(movie => <MovieCard key={movie._id} movie={movie} />)
+                : movies?.map(movie => <MovieCard key={movie._id} movie={movie} selectedLocation={selectedLocation} />)
             }
           </div>
         </div>

@@ -45,6 +45,16 @@ mongoose.connect(MONGO_URI)
             partner = await User.create({ name: 'PVR Manager', email: 'partner@pvr.com', password: 'partner123', phone: '8888888888', role: 'theater_admin', isApproved: true, businessName: 'PVR Cinemas' });
         }
 
+        let inoxPartner = await User.findOne({ email: 'partner@inox.com' });
+        if (!inoxPartner) {
+            inoxPartner = await User.create({ name: 'INOX Manager', email: 'partner@inox.com', password: 'partner123', phone: '8888888887', role: 'theater_admin', isApproved: true, businessName: 'INOX' });
+        }
+
+        let cinepolisPartner = await User.findOne({ email: 'partner@cinepolis.com' });
+        if (!cinepolisPartner) {
+            cinepolisPartner = await User.create({ name: 'Cinepolis Manager', email: 'partner@cinepolis.com', password: 'partner123', phone: '8888888886', role: 'theater_admin', isApproved: true, businessName: 'Cinepolis' });
+        }
+
         let staff = await User.findOne({ email: 'staff@cinereserve.com' });
         if (!staff) {
             staff = await User.create({ name: 'Scanner Staff', email: 'staff@cinereserve.com', password: 'staff123', phone: '7777777777', role: 'staff', isApproved: true });
@@ -225,6 +235,7 @@ mongoose.connect(MONGO_URI)
             },
             {
                 name: 'INOX: Select Citywalk',
+                ownerId: inoxPartner._id,
                 location: { city: 'Delhi', address: 'Select Citywalk, Saket' },
                 facilities: ['4DX', 'Parking', 'Food Court'],
                 screens: [{
@@ -241,7 +252,8 @@ mongoose.connect(MONGO_URI)
             },
             {
                 name: 'Cinepolis: Forum Mall',
-                location: { city: 'Bangalore', address: 'Forum Value Mall, Whitefield' },
+                ownerId: cinepolisPartner._id,
+                location: { city: 'Bangalore', address: 'Forum Mall, Koramangala' },
                 facilities: ['Dolby Atmos', 'Parking', 'Food Court', 'Wheelchair Access'],
                 screens: [{
                     screenNumber: 1,
@@ -341,16 +353,35 @@ mongoose.connect(MONGO_URI)
         const showtimes = await Showtime.create(showtimeData);
         console.log(`  ✅ ${showtimes.length} showtimes created across 5 days`);
 
+        console.log('\n🌟 Creating reviews...');
+        for (const movie of movies) {
+            const randomRating = Math.floor(Math.random() * 3) + 7; // 7 to 9
+            await Review.create({
+                movieId: movie._id,
+                userId: demoUser._id,
+                rating: randomRating,
+                comment: `Great movie! Loved watching ${movie.title}.`
+            });
+            await Movie.findByIdAndUpdate(movie._id, {
+                rating: randomRating,
+                averageRating: randomRating,
+                totalReviews: 1
+            });
+        }
+        console.log(`  ✅ ${movies.length} reviews created and movies updated`);
+
         // ============================================
-        // SUMMARY
+        // DONE
         // ============================================
-        console.log('\n' + '='.repeat(50));
+        console.log('\n==================================================');
         console.log('🎉 PRODUCTION SEED COMPLETE!');
-        console.log('='.repeat(50));
+        console.log('==================================================');
+
         console.log('\n📊 Data Created:');
         console.log(`  🎬 ${movies.length} Movies`);
         console.log(`  🏢 ${theaters.length} Theaters`);
         console.log(`  🕐 ${showtimes.length} Showtimes`);
+        console.log(`  🌟 ${movies.length} Reviews`);
         console.log('');
 
         process.exit(0);

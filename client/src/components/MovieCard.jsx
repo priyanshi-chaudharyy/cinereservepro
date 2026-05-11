@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-export default function MovieCard({ movie }) {
+export default function MovieCard({ movie, selectedLocation }) {
   return (
     <div className="card" style={{ cursor: 'pointer', position: 'relative' }} role="article">
       {/* Poster */}
@@ -40,7 +40,7 @@ export default function MovieCard({ movie }) {
           onMouseEnter={e => e.currentTarget.style.opacity = 1}
           onMouseLeave={e => e.currentTarget.style.opacity = 0}
         >
-          <Link to={`/movie/${movie._id}`} className="btn-primary" style={{ borderRadius: '999px', padding: '0.55rem 1.4rem', fontSize: '0.85rem', textDecoration: 'none' }}>
+          <Link to={`/movie/${movie._id}`} state={{ location: selectedLocation }} className="btn-primary" style={{ borderRadius: '999px', padding: '0.55rem 1.4rem', fontSize: '0.85rem', textDecoration: 'none' }}>
             🎟 Book Now
           </Link>
         </div>

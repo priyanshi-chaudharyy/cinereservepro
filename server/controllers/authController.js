@@ -118,6 +118,14 @@ export const login = async (req, res) => {
             });
         }
 
+        //check approval
+        if (user.role === 'theater_admin' && !user.isApproved) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account is pending approval by the super admin.'
+            });
+        }
+
         //generate token
         const token = generateToken(user._id);
 
