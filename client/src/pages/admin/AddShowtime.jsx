@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 
 export default function AddShowtime() {
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const res = await api.get('/api/auth/me');
+      return res.data.data;
+    },
+  });
   const [theaters, setTheaters] = useState([]);
   const [screens, setScreens] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,10 +24,12 @@ export default function AddShowtime() {
   });
 
   useEffect(() => {
-    api.get('/api/theaters')
+    if (!currentUser) return;
+    const endpoint = currentUser.role === 'theater_admin' ? '/api/theaters/my-theaters' : '/api/theaters';
+    api.get(endpoint)
       .then(res => setTheaters(res.data.data || []))
       .catch(() => toast.error('Failed to load theaters'));
-  }, []);
+  }, [currentUser]);
 
   const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 

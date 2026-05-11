@@ -35,66 +35,24 @@ mongoose.connect(MONGO_URI)
         // ============================================
         console.log('\n👤 Creating users...');
 
-        // Check if admin already exists
         let admin = await User.findOne({ email: 'admin@cinereserve.com' });
         if (!admin) {
-            admin = await User.create({
-                name: 'Super Admin',
-                email: 'admin@cinereserve.com',
-                password: 'admin123',
-                phone: '9999999999',
-                role: 'admin',
-                isApproved: true
-            });
-            console.log('  ✅ Admin created: admin@cinereserve.com / admin123');
-        } else {
-            console.log('  ⏩ Admin already exists');
+            admin = await User.create({ name: 'Super Admin', email: 'admin@cinereserve.com', password: 'admin123', phone: '9999999999', role: 'admin', isApproved: true });
         }
 
         let partner = await User.findOne({ email: 'partner@pvr.com' });
         if (!partner) {
-            partner = await User.create({
-                name: 'PVR Manager',
-                email: 'partner@pvr.com',
-                password: 'partner123',
-                phone: '8888888888',
-                role: 'theater_admin',
-                isApproved: true,
-                businessName: 'PVR Cinemas'
-            });
-            console.log('  ✅ Partner created: partner@pvr.com / partner123');
-        } else {
-            console.log('  ⏩ Partner already exists');
+            partner = await User.create({ name: 'PVR Manager', email: 'partner@pvr.com', password: 'partner123', phone: '8888888888', role: 'theater_admin', isApproved: true, businessName: 'PVR Cinemas' });
         }
 
         let staff = await User.findOne({ email: 'staff@cinereserve.com' });
         if (!staff) {
-            staff = await User.create({
-                name: 'Scanner Staff',
-                email: 'staff@cinereserve.com',
-                password: 'staff123',
-                phone: '7777777777',
-                role: 'staff',
-                isApproved: true
-            });
-            console.log('  ✅ Staff created: staff@cinereserve.com / staff123');
-        } else {
-            console.log('  ⏩ Staff already exists');
+            staff = await User.create({ name: 'Scanner Staff', email: 'staff@cinereserve.com', password: 'staff123', phone: '7777777777', role: 'staff', isApproved: true });
         }
 
         let demoUser = await User.findOne({ email: 'user@demo.com' });
         if (!demoUser) {
-            demoUser = await User.create({
-                name: 'Demo User',
-                email: 'user@demo.com',
-                password: 'user123',
-                phone: '6666666666',
-                role: 'user',
-                isApproved: true
-            });
-            console.log('  ✅ Demo user created: user@demo.com / user123');
-        } else {
-            console.log('  ⏩ Demo user already exists');
+            demoUser = await User.create({ name: 'Demo User', email: 'user@demo.com', password: 'user123', phone: '6666666666', role: 'user', isApproved: true });
         }
 
         // ============================================
@@ -102,7 +60,6 @@ mongoose.connect(MONGO_URI)
         // ============================================
         console.log('\n🎬 Creating movies...');
 
-        // Clear existing movies, theaters, showtimes
         await Movie.deleteMany({});
         await Theater.deleteMany({});
         await Showtime.deleteMany({});
@@ -112,37 +69,29 @@ mongoose.connect(MONGO_URI)
         const movies = await Movie.create([
             {
                 title: 'Interstellar',
-                description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival. When a newly discovered wormhole in the far reaches of the solar system allows travel to distant galaxies, a team of NASA scientists, engineers and pilots sets out on the most important mission in human history.',
+                description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
                 genre: ['Action', 'Adventure', 'Sci-Fi'],
                 language: ['English', 'Hindi'],
                 duration: 169,
                 releasedDate: new Date('2014-11-07'),
                 rating: 8.7,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/gEU2QlsUUHXjNpeVD0CfltPciOM.jpg',
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=zSWdZVtXT7E',
                 director: 'Christopher Nolan',
-                cast: [
-                    { name: 'Matthew McConaughey', role: 'Cooper' },
-                    { name: 'Anne Hathaway', role: 'Dr. Brand' },
-                    { name: 'Jessica Chastain', role: 'Murph' }
-                ]
+                cast: [{ name: 'Matthew McConaughey', role: 'Cooper' }]
             },
             {
                 title: 'Dune: Part Two',
-                description: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.',
+                description: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.',
                 genre: ['Action', 'Adventure', 'Sci-Fi'],
                 language: ['English'],
                 duration: 166,
                 releasedDate: new Date('2024-03-01'),
                 rating: 8.8,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2TDpiuLTe.jpg',
+                posterUrl: 'https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p26702084_p_v8_aa.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=Way9Dexny3w',
                 director: 'Denis Villeneuve',
-                cast: [
-                    { name: 'Timothée Chalamet', role: 'Paul Atreides' },
-                    { name: 'Zendaya', role: 'Chani' },
-                    { name: 'Austin Butler', role: 'Feyd-Rautha' }
-                ]
+                cast: [{ name: 'Timothée Chalamet', role: 'Paul Atreides' }]
             },
             {
                 title: 'The Dark Knight',
@@ -152,14 +101,10 @@ mongoose.connect(MONGO_URI)
                 duration: 152,
                 releasedDate: new Date('2008-07-18'),
                 rating: 9.0,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911BytUgMoVhB69.jpg',
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/1/1c/The_Dark_Knight_%282008_film%29.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
                 director: 'Christopher Nolan',
-                cast: [
-                    { name: 'Christian Bale', role: 'Bruce Wayne' },
-                    { name: 'Heath Ledger', role: 'Joker' },
-                    { name: 'Aaron Eckhart', role: 'Harvey Dent' }
-                ]
+                cast: [{ name: 'Christian Bale', role: 'Bruce Wayne' }]
             },
             {
                 title: 'Oppenheimer',
@@ -169,31 +114,23 @@ mongoose.connect(MONGO_URI)
                 duration: 180,
                 releasedDate: new Date('2023-07-21'),
                 rating: 8.5,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+                posterUrl: 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=uYPbbksJxIg',
                 director: 'Christopher Nolan',
-                cast: [
-                    { name: 'Cillian Murphy', role: 'J. Robert Oppenheimer' },
-                    { name: 'Emily Blunt', role: 'Kitty Oppenheimer' },
-                    { name: 'Robert Downey Jr.', role: 'Lewis Strauss' }
-                ]
+                cast: [{ name: 'Cillian Murphy', role: 'J. Robert Oppenheimer' }]
             },
             {
                 title: 'Inception',
-                description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O., but his tragic past may doom the project and his team to disaster.',
+                description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
                 genre: ['Action', 'Sci-Fi', 'Thriller'],
                 language: ['English', 'Hindi'],
                 duration: 148,
                 releasedDate: new Date('2010-07-16'),
                 rating: 8.8,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg',
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
                 director: 'Christopher Nolan',
-                cast: [
-                    { name: 'Leonardo DiCaprio', role: 'Cobb' },
-                    { name: 'Joseph Gordon-Levitt', role: 'Arthur' },
-                    { name: 'Elliot Page', role: 'Ariadne' }
-                ]
+                cast: [{ name: 'Leonardo DiCaprio', role: 'Cobb' }]
             },
             {
                 title: 'RRR',
@@ -203,14 +140,62 @@ mongoose.connect(MONGO_URI)
                 duration: 187,
                 releasedDate: new Date('2022-03-25'),
                 rating: 7.8,
-                posterUrl: 'https://image.tmdb.org/t/p/w500/nEufeZYoDBPKgfPkGD9RkFOwdag.jpg',
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/d/d7/RRR_Poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=f_vbAtFSEc0',
                 director: 'S.S. Rajamouli',
-                cast: [
-                    { name: 'N.T. Rama Rao Jr.', role: 'Komaram Bheem' },
-                    { name: 'Ram Charan', role: 'Alluri Sitarama Raju' },
-                    { name: 'Alia Bhatt', role: 'Sita' }
-                ]
+                cast: [{ name: 'Ram Charan', role: 'Alluri Sitarama Raju' }]
+            },
+            {
+                title: 'Avatar: The Way of Water',
+                description: 'Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na\'vi race to protect their home.',
+                genre: ['Action', 'Adventure', 'Sci-Fi'],
+                language: ['English', 'Hindi', 'Tamil', 'Telugu'],
+                duration: 192,
+                releasedDate: new Date('2022-12-16'),
+                rating: 7.6,
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg',
+                trailerUrl: 'https://www.youtube.com/watch?v=d9MyW72ELq0',
+                director: 'James Cameron',
+                cast: [{ name: 'Sam Worthington', role: 'Jake Sully' }]
+            },
+            {
+                title: 'Spider-Man: Across the Spider-Verse',
+                description: 'Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence.',
+                genre: ['Animation', 'Action', 'Adventure'],
+                language: ['English', 'Hindi'],
+                duration: 140,
+                releasedDate: new Date('2023-06-02'),
+                rating: 8.7,
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/b/b4/Spider-Man-_Across_the_Spider-Verse_poster.jpg',
+                trailerUrl: 'https://www.youtube.com/watch?v=shW9i6k8cB0',
+                director: 'Joaquim Dos Santos',
+                cast: [{ name: 'Shameik Moore', role: 'Miles Morales' }]
+            },
+            {
+                title: 'Avengers: Endgame',
+                description: 'After the devastating events of Infinity War, the remaining Avengers assemble once more in order to reverse Thanos\' actions and restore balance to the universe.',
+                genre: ['Action', 'Adventure', 'Sci-Fi'],
+                language: ['English', 'Hindi', 'Tamil', 'Telugu'],
+                duration: 181,
+                releasedDate: new Date('2019-04-26'),
+                rating: 8.4,
+                posterUrl: 'https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg',
+                trailerUrl: 'https://www.youtube.com/watch?v=TcMBFSGVi1c',
+                director: 'Anthony Russo, Joe Russo',
+                cast: [{ name: 'Robert Downey Jr.', role: 'Tony Stark' }]
+            },
+            {
+                title: 'The Matrix',
+                description: 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.',
+                genre: ['Action', 'Sci-Fi'],
+                language: ['English'],
+                duration: 136,
+                releasedDate: new Date('1999-03-31'),
+                rating: 8.7,
+                posterUrl: 'https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg',
+                trailerUrl: 'https://www.youtube.com/watch?v=vKQi3bBA1y8',
+                director: 'Lana Wachowski, Lilly Wachowski',
+                cast: [{ name: 'Keanu Reeves', role: 'Neo' }]
             }
         ]);
         console.log(`  ✅ ${movies.length} movies created`);
@@ -223,6 +208,7 @@ mongoose.connect(MONGO_URI)
         const theaters = await Theater.create([
             {
                 name: 'PVR IMAX: Phoenix Palladium',
+                ownerId: partner._id,
                 location: { city: 'Mumbai', address: 'Phoenix Palladium, Lower Parel' },
                 facilities: ['IMAX', 'Parking', 'Food Court'],
                 screens: [{
@@ -277,7 +263,6 @@ mongoose.connect(MONGO_URI)
         // ============================================
         console.log('\n🕐 Creating showtimes...');
 
-        // Helper to generate seat status
         const generateSeatStatus = (theater, screenId) => {
             const screen = theater.screens.id(screenId);
             const seats = [];
@@ -286,17 +271,10 @@ mongoose.connect(MONGO_URI)
                 const rowLetter = String.fromCharCode(65 + r);
                 let seatType = 'Economy';
                 for (const type of screen.seatType) {
-                    if (type.rows.includes(rowLetter)) {
-                        seatType = type.type;
-                        break;
-                    }
+                    if (type.rows.includes(rowLetter)) { seatType = type.type; break; }
                 }
                 for (let c = 1; c <= columns; c++) {
-                    seats.push({
-                        seatNumber: `${rowLetter}${c}`,
-                        status: 'Available',
-                        seatType: seatType
-                    });
+                    seats.push({ seatNumber: `${rowLetter}${c}`, status: 'Available', seatType });
                 }
             }
             return seats;
@@ -305,51 +283,58 @@ mongoose.connect(MONGO_URI)
         const showtimeData = [];
         const showTimes = ['10:00 AM', '01:30 PM', '04:00 PM', '07:30 PM', '10:30 PM'];
 
-        // Create showtimes for the next 5 days
         for (let dayOffset = 0; dayOffset < 5; dayOffset++) {
             const showDate = new Date();
             showDate.setDate(showDate.getDate() + dayOffset);
             showDate.setHours(0, 0, 0, 0);
 
-            // Each movie gets 2-3 showtimes across different theaters
+            // Movie Distribution Rules:
+            // Movies 0-3: Available in all 3 theaters
+            // Movies 4-6: Available in 2 theaters
+            // Movies 7-9: Available only in 1 theater (Exclusive)
+
             for (let i = 0; i < movies.length; i++) {
                 const movie = movies[i];
-                const theater = theaters[i % theaters.length];
-                const screen = theater.screens[0];
+                
+                let assignedTheaters = [];
+                if (i < 4) assignedTheaters = theaters; // All theaters
+                else if (i < 7) assignedTheaters = [theaters[0], theaters[1]]; // 2 theaters
+                else assignedTheaters = [theaters[2]]; // 1 theater only
 
-                // Give each movie 2 showtimes per day
-                const timeSlot1 = showTimes[i % showTimes.length];
-                const timeSlot2 = showTimes[(i + 2) % showTimes.length];
+                for (const theater of assignedTheaters) {
+                    const screen = theater.screens[0];
+                    
+                    // 1-2 showtimes per theater per day
+                    const timeSlot1 = showTimes[i % showTimes.length];
+                    const timeSlot2 = showTimes[(i + 3) % showTimes.length];
 
-                showtimeData.push({
-                    movieId: movie._id,
-                    theaterId: theater._id,
-                    screenId: screen._id,
-                    showDate,
-                    showTime: timeSlot1,
-                    pricing: {
-                        vip: screen.seatType.find(s => s.type === 'VIP')?.basePrice || 500,
-                        premium: screen.seatType.find(s => s.type === 'Premium')?.basePrice || 350,
-                        economy: screen.seatType.find(s => s.type === 'Economy')?.basePrice || 200
-                    },
-                    seatStatus: generateSeatStatus(theater, screen._id),
-                    totalSeatAvailable: screen.totalSeats
-                });
+                    showtimeData.push({
+                        movieId: movie._id, theaterId: theater._id, screenId: screen._id,
+                        showDate, showTime: timeSlot1,
+                        pricing: {
+                            vip: screen.seatType.find(s => s.type === 'VIP')?.basePrice || 500,
+                            premium: screen.seatType.find(s => s.type === 'Premium')?.basePrice || 350,
+                            economy: screen.seatType.find(s => s.type === 'Economy')?.basePrice || 200
+                        },
+                        seatStatus: generateSeatStatus(theater, screen._id),
+                        totalSeatAvailable: screen.totalSeats
+                    });
 
-                showtimeData.push({
-                    movieId: movie._id,
-                    theaterId: theater._id,
-                    screenId: screen._id,
-                    showDate,
-                    showTime: timeSlot2,
-                    pricing: {
-                        vip: screen.seatType.find(s => s.type === 'VIP')?.basePrice || 500,
-                        premium: screen.seatType.find(s => s.type === 'Premium')?.basePrice || 350,
-                        economy: screen.seatType.find(s => s.type === 'Economy')?.basePrice || 200
-                    },
-                    seatStatus: generateSeatStatus(theater, screen._id),
-                    totalSeatAvailable: screen.totalSeats
-                });
+                    // Add second showtime only for some
+                    if (i % 2 === 0) {
+                        showtimeData.push({
+                            movieId: movie._id, theaterId: theater._id, screenId: screen._id,
+                            showDate, showTime: timeSlot2,
+                            pricing: {
+                                vip: screen.seatType.find(s => s.type === 'VIP')?.basePrice || 500,
+                                premium: screen.seatType.find(s => s.type === 'Premium')?.basePrice || 350,
+                                economy: screen.seatType.find(s => s.type === 'Economy')?.basePrice || 200
+                            },
+                            seatStatus: generateSeatStatus(theater, screen._id),
+                            totalSeatAvailable: screen.totalSeats
+                        });
+                    }
+                }
             }
         }
 
@@ -357,47 +342,15 @@ mongoose.connect(MONGO_URI)
         console.log(`  ✅ ${showtimes.length} showtimes created across 5 days`);
 
         // ============================================
-        // 5. CREATE REVIEWS
-        // ============================================
-        console.log('\n⭐ Creating reviews...');
-
-        const reviews = await Review.create([
-            { movieId: movies[0]._id, userId: demoUser._id, rating: 9, comment: 'An absolute masterpiece! The visuals and soundtrack are breathtaking.' },
-            { movieId: movies[1]._id, userId: demoUser._id, rating: 9, comment: 'Even better than Part One. The desert scenes are incredible.' },
-            { movieId: movies[2]._id, userId: demoUser._id, rating: 10, comment: 'Heath Ledger\'s Joker is the greatest villain performance of all time.' },
-            { movieId: movies[3]._id, userId: demoUser._id, rating: 8, comment: 'A powerful biopic. Cillian Murphy deserves every award.' },
-            { movieId: movies[4]._id, userId: demoUser._id, rating: 9, comment: 'Mind-bending plot that keeps you thinking for days!' },
-            { movieId: movies[5]._id, userId: demoUser._id, rating: 8, comment: 'The action sequences are on another level. Pure entertainment!' },
-        ]);
-
-        // Update movie review stats
-        for (const movie of movies) {
-            const movieReviews = reviews.filter(r => r.movieId.toString() === movie._id.toString());
-            const avgRating = movieReviews.reduce((sum, r) => sum + r.rating, 0) / movieReviews.length;
-            await Movie.findByIdAndUpdate(movie._id, {
-                averageRating: Math.round(avgRating * 10) / 10,
-                totalReviews: movieReviews.length
-            });
-        }
-        console.log(`  ✅ ${reviews.length} reviews created`);
-
-        // ============================================
         // SUMMARY
         // ============================================
         console.log('\n' + '='.repeat(50));
         console.log('🎉 PRODUCTION SEED COMPLETE!');
         console.log('='.repeat(50));
-        console.log('\n📋 Login Credentials:');
-        console.log('  🔴 Admin:   admin@cinereserve.com / admin123');
-        console.log('  🟠 Partner: partner@pvr.com / partner123');
-        console.log('  🟢 Staff:   staff@cinereserve.com / staff123');
-        console.log('  🔵 User:    user@demo.com / user123');
         console.log('\n📊 Data Created:');
         console.log(`  🎬 ${movies.length} Movies`);
         console.log(`  🏢 ${theaters.length} Theaters`);
         console.log(`  🕐 ${showtimes.length} Showtimes`);
-        console.log(`  ⭐ ${reviews.length} Reviews`);
-        console.log(`  👤 4 User Accounts`);
         console.log('');
 
         process.exit(0);
