@@ -59,10 +59,10 @@ export const signup = async (req, res) => {
             businessName: userRole === 'theater_admin' ? businessName : undefined
         });
 
-        //generate token
-        const token = generateToken(user._id);
+        const shouldIssueToken = user.isApproved;
+        const token = shouldIssueToken ? generateToken(user._id) : null;
 
-        if (useAuthCookie) {
+        if (useAuthCookie && shouldIssueToken) {
             res.cookie('token', token, {
                 ...baseCookieOptions,
                 maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days

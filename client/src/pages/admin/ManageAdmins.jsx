@@ -51,7 +51,10 @@ export default function ManageAdmins() {
         }
     };
 
-    const list = activeTab === 'pending' ? pending : approved;
+    const expectedRole = category === 'staff' ? 'staff' : 'theater_admin';
+    const list = (activeTab === 'pending' ? pending : approved).filter(user => user.role === expectedRole);
+    const pendingCount = pending.filter(user => user.role === expectedRole).length;
+    const approvedCount = approved.filter(user => user.role === expectedRole).length;
 
     const title = category === 'staff' ? 'Manage Staff Accounts' : 'Manage Cinema Partners';
     const subtitle = category === 'staff'
@@ -96,7 +99,7 @@ export default function ManageAdmins() {
                             fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
                         }}
                     >
-                        {tab === 'pending' ? `⏳ Pending (${pending.length})` : `✅ Approved (${approved.length})`}
+                        {tab === 'pending' ? `Pending (${pendingCount})` : `Approved (${approvedCount})`}
                     </button>
                 ))}
             </div>
