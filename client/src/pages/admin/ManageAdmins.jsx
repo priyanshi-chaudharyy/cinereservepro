@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 export default function ManageAdmins() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [pending, setPending] = useState([]);
     const [approved, setApproved] = useState([]);
     const [activeTab, setActiveTab] = useState('pending');
-    const [category, setCategory] = useState('partners');
+    const [category, setCategory] = useState(searchParams.get('category') || 'partners');
     const [loading, setLoading] = useState(true);
 
     const fetchAdmins = async () => {
@@ -27,6 +29,11 @@ export default function ManageAdmins() {
     };
 
     useEffect(() => { fetchAdmins(); }, [category]);
+
+    useEffect(() => {
+        const next = searchParams.get('category') || 'partners';
+        if (next !== category) setCategory(next);
+    }, [searchParams, category]);
 
     const handleApprove = async (userId, name) => {
         try {
@@ -71,7 +78,10 @@ export default function ManageAdmins() {
                 {[{ key: 'partners', label: 'Cinema Partners' }, { key: 'staff', label: 'Staff Accounts' }].map(tab => (
                     <button
                         key={tab.key}
-                        onClick={() => setCategory(tab.key)}
+                        onClick={() => {
+                            setCategory(tab.key);
+                            setSearchParams({ category: tab.key }, { replace: true });
+                        }}
                         style={{
                             padding: '0.5rem 1.2rem', borderRadius: 'var(--radius-sm)',
                             border: category === tab.key ? '1px solid rgba(229,9,20,0.5)' : '1px solid var(--border)',

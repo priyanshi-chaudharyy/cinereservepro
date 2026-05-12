@@ -7,7 +7,8 @@ const superAdminLinks = [
     { to: '/admin', label: 'Dashboard', icon: '📊', exact: true },
     { to: '/admin/add-movie', label: 'Add Movie', icon: '🎬' },
     { to: '/admin/theaters', label: 'All Theaters', icon: '🏛️' },
-    { to: '/admin/manage-admins', label: 'Approvals', icon: '👥' },
+    { to: '/admin/manage-admins?category=partners', label: 'Cinema Partners', icon: '🏛️' },
+    { to: '/admin/manage-admins?category=staff', label: 'Staff Accounts', icon: '👥' },
 ];
 
 // Links visible to theater_admin

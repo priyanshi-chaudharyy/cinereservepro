@@ -34,6 +34,13 @@ export const protect=async (req,res,next)=>{
             });
         }
 
+        if ((req.user.role === 'theater_admin' || req.user.role === 'staff') && !req.user.isApproved) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account is pending approval by the super admin.'
+            });
+        }
+
         next();
     }catch(error){
         res.status(401).json({
