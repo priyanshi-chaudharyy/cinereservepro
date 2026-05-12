@@ -2,7 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import AdminLayout from './pages/admin/AdminLayout';
 import Home from './pages/Home';
-import MovieDetails from './pages/MovieDetails';
+import MovieInfo from './pages/MovieInfo';
+import MovieShowtimes from './pages/MovieShowtimes';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AddMovie from './pages/admin/AddMovie';
@@ -22,7 +23,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="movie/:movieId" element={<MovieDetails />} />
+        <Route path="movie/:movieId" element={<MovieInfo />} />
+        <Route path="movie/:movieId/showtimes" element={<MovieShowtimes />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="booking/:showtimeId" element={<BookingPage />} />

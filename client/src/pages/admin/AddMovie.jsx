@@ -12,9 +12,26 @@ export default function AddMovie() {
   const [formData, setFormData] = useState({
     title: '', description: '', duration: '', releasedDate: '',
     director: '', trailerUrl: '', genre: [], language: [],
+    cast: []
   });
 
   const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const updateCast = (index, field, value) => {
+    setFormData(p => {
+      const cast = [...p.cast];
+      cast[index] = { ...cast[index], [field]: value };
+      return { ...p, cast };
+    });
+  };
+
+  const addCastMember = () => {
+    setFormData(p => ({ ...p, cast: [...p.cast, { name: '', role: '', imageUrl: '' }] }));
+  };
+
+  const removeCastMember = (index) => {
+    setFormData(p => ({ ...p, cast: p.cast.filter((_, i) => i !== index) }));
+  };
 
   const toggleArray = (field, value) => {
     setFormData(p => ({
@@ -43,15 +60,18 @@ export default function AddMovie() {
       const imgRes = await api.post('/api/upload/image', fd);
 
       // 2. Create movie
+      const cleanCast = (formData.cast || []).filter(m => m.name && m.name.trim().length > 0);
+
       await api.post('/api/movies', {
         ...formData,
+        cast: cleanCast,
         duration: Number(formData.duration),
         posterUrl: imgRes.data.data.url,
         posterPublicId: imgRes.data.data.publicId,
       });
 
       toast.success('Movie added successfully! 🎬');
-      setFormData({ title: '', description: '', duration: '', releasedDate: '', director: '', trailerUrl: '', genre: [], language: [] });
+      setFormData({ title: '', description: '', duration: '', releasedDate: '', director: '', trailerUrl: '', genre: [], language: [], cast: [] });
       setFile(null);
       setPreview(null);
     } catch (err) {
@@ -109,6 +129,54 @@ export default function AddMovie() {
             </div>
 
             <Field label="Trailer URL (YouTube)" name="trailerUrl" placeholder="https://youtube.com/watch?v=..." value={formData.trailerUrl} onChange={handleChange} />
+
+            {/* Cast */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <label style={labelStyle}>Cast</label>
+                <button type="button" onClick={addCastMember} style={{
+                  padding: '4px 10px', borderRadius: '999px', fontSize: '0.75rem',
+                  border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)'
+                }}>
+                  + Add Cast
+                </button>
+              </div>
+              {formData.cast.length === 0 && (
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>No cast added yet.</p>
+              )}
+              {formData.cast.map((member, index) => (
+                <div key={index} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.5fr auto', gap: '0.5rem', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <input
+                    className="input-base"
+                    placeholder="Actor name"
+                    value={member.name}
+                    onChange={e => updateCast(index, 'name', e.target.value)}
+                  />
+                  <input
+                    className="input-base"
+                    placeholder="Role"
+                    value={member.role}
+                    onChange={e => updateCast(index, 'role', e.target.value)}
+                  />
+                  <input
+                    className="input-base"
+                    placeholder="Image URL"
+                    value={member.imageUrl}
+                    onChange={e => updateCast(index, 'imageUrl', e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeCastMember(index)}
+                    style={{
+                      padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.3)',
+                      background: 'rgba(239,68,68,0.1)', color: '#ef4444', cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
 
             {/* Genre Chips */}
             <div>

@@ -42,6 +42,13 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
 
     return (
         <div style={{ position: 'relative' }}>
+            {pricing && (
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                    <span className="badge badge-red">VIP ₹{pricing.vip}</span>
+                    <span className="badge badge-red" style={{ opacity: 0.7 }}>Premium ₹{pricing.premium}</span>
+                    <span className="badge badge-silver">Economy ₹{pricing.economy}</span>
+                </div>
+            )}
             <div 
                 ref={containerRef}
                 onScroll={handleScroll}

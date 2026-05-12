@@ -41,7 +41,7 @@ export default function MovieCard({ movie, selectedLocation }) {
           onMouseLeave={e => e.currentTarget.style.opacity = 0}
         >
           <Link to={`/movie/${movie._id}`} state={{ location: selectedLocation }} className="btn-primary" style={{ borderRadius: '999px', padding: '0.55rem 1.4rem', fontSize: '0.85rem', textDecoration: 'none' }}>
-            🎟 Book Now
+            View Info
           </Link>
         </div>
 
