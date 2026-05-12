@@ -31,8 +31,8 @@ export default function AdminLayout() {
 
     if (isLoading) return <div>Loading...</div>;
     
-    // Prevent normal users from accessing Admin panel
-    if (!user || user.role === 'user') {
+    // Prevent non-admin roles from accessing Admin panel
+    if (!user || user.role === 'user' || user.role === 'staff') {
         return <Navigate to="/" replace />;
     }
 

@@ -14,6 +14,7 @@ const baseCookieOptions = {
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'strict'
 };
+const useAuthCookie = process.env.USE_AUTH_COOKIE === 'true';
 
 //@desc Register new user
 //@route POST /api/auth/signup
@@ -32,8 +33,12 @@ export const signup = async (req, res) => {
         }
 
         // Determine role and approval status
-        const userRole = role === 'theater_admin' ? 'theater_admin' : 'user';
-        const isApproved = userRole === 'theater_admin' ? false : true;
+        const userRole = role === 'theater_admin'
+            ? 'theater_admin'
+            : role === 'staff'
+                ? 'staff'
+                : 'user';
+        const isApproved = (userRole === 'theater_admin' || userRole === 'staff') ? false : true;
 
         // Validate business name for theater admins
         if (userRole === 'theater_admin' && !businessName) {
@@ -57,11 +62,14 @@ export const signup = async (req, res) => {
         //generate token
         const token = generateToken(user._id);
 
-        //set HTTP-only cookie
-        res.cookie('token', token, {
-            ...baseCookieOptions,
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-        });
+        if (useAuthCookie) {
+            res.cookie('token', token, {
+                ...baseCookieOptions,
+                maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+            });
+        } else {
+            res.clearCookie('token', baseCookieOptions);
+        }
 
         res.status(201).json({
             success: true,
@@ -118,8 +126,7 @@ export const login = async (req, res) => {
             });
         }
 
-        //check approval
-        if (user.role === 'theater_admin' && !user.isApproved) {
+        if ((user.role === 'theater_admin' || user.role === 'staff') && !user.isApproved) {
             return res.status(403).json({
                 success: false,
                 message: 'Your account is pending approval by the super admin.'
@@ -129,11 +136,14 @@ export const login = async (req, res) => {
         //generate token
         const token = generateToken(user._id);
 
-        //set HTTP-only cookie
-        res.cookie('token', token, {
-            ...baseCookieOptions,
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
+        if (useAuthCookie) {
+            res.cookie('token', token, {
+                ...baseCookieOptions,
+                maxAge: 30 * 24 * 60 * 60 * 1000
+            });
+        } else {
+            res.clearCookie('token', baseCookieOptions);
+        }
 
         res.json({
             success: true,
@@ -289,11 +299,14 @@ export const googleLogin = async (req, res) => {
         //3. generate standard JWT token just like normal login
         const token = generateToken(user._id);
 
-        //4. Set the HTTP-only cookie identical to normal login
-        res.cookie('token', token, {
-            ...baseCookieOptions,
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-        });
+        if (useAuthCookie) {
+            res.cookie('token', token, {
+                ...baseCookieOptions,
+                maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+            });
+        } else {
+            res.clearCookie('token', baseCookieOptions);
+        }
 
         res.json({
             success: true,

@@ -5,11 +5,12 @@ import User from '../models/User.js';
 export const protect=async (req,res,next)=>{
     try{
         let token;
+        const useAuthCookie = process.env.USE_AUTH_COOKIE === 'true';
 
         //check for token in Authorization header first, then cookie
         if(req.headers.authorization?.startsWith('Bearer')){
             token=req.headers.authorization.split(' ')[1];
-        }else if(req.cookies.token){
+        }else if(useAuthCookie && req.cookies.token){
             token=req.cookies.token;
         }
 
@@ -77,6 +78,12 @@ export const theaterAdminOrAdmin = (req, res, next) => {
 // Staff access (staff, theater admin, admin)
 export const staffAccess = (req, res, next) => {
     if (req.user && (req.user.role === 'admin' || req.user.role === 'theater_admin' || req.user.role === 'staff')) {
+        if (req.user.role === 'staff' && !req.user.isApproved) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your staff account is pending approval by the super admin.'
+            });
+        }
         next();
     } else {
         res.status(403).json({

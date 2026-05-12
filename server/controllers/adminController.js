@@ -70,3 +70,74 @@ export const rejectAdmin = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// @desc Get all pending staff registrations
+// @route GET /api/admin/staff/pending
+// @access Admin only
+export const getPendingStaff = async (req, res) => {
+    try {
+        const pending = await User.find({
+            role: 'staff',
+            isApproved: false
+        }).select('-password').sort({ createdAt: -1 });
+
+        res.json({ success: true, data: pending });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc Get all approved staff
+// @route GET /api/admin/staff/approved
+// @access Admin only
+export const getApprovedStaff = async (req, res) => {
+    try {
+        const approved = await User.find({
+            role: 'staff',
+            isApproved: true
+        }).select('-password').sort({ createdAt: -1 });
+
+        res.json({ success: true, data: approved });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc Approve a staff account
+// @route PUT /api/admin/staff/approve/:userId
+// @access Admin only
+export const approveStaff = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user || user.role !== 'staff') {
+            return res.status(404).json({ success: false, message: 'Staff user not found' });
+        }
+
+        user.isApproved = true;
+        await user.save();
+
+        res.json({ success: true, message: `${user.name} has been approved!`, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc Reject a staff account (delete their account)
+// @route DELETE /api/admin/staff/reject/:userId
+// @access Admin only
+export const rejectStaff = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user || user.role !== 'staff') {
+            return res.status(404).json({ success: false, message: 'Staff user not found' });
+        }
+
+        await User.findByIdAndDelete(req.params.userId);
+
+        res.json({ success: true, message: `${user.name} registration rejected.` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

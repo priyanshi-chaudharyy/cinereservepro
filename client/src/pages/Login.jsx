@@ -23,8 +23,6 @@ export default function Login() {
             toast.success(`Welcome back! 👋`);
             if (role === 'admin') {
                 navigate('/admin/add-movie');
-            } else if (role === 'staff') {
-                navigate('/scanner');
             } else {
                 navigate('/');
             }
@@ -58,8 +56,6 @@ export default function Login() {
 
             if (role === 'admin') {
                 navigate('/admin/add-movie');
-            } else if (role === 'staff') {
-                navigate('/scanner');
             } else {
                 navigate('/');
             }

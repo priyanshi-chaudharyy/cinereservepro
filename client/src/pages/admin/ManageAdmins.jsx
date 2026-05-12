@@ -6,14 +6,16 @@ export default function ManageAdmins() {
     const [pending, setPending] = useState([]);
     const [approved, setApproved] = useState([]);
     const [activeTab, setActiveTab] = useState('pending');
+    const [category, setCategory] = useState('partners');
     const [loading, setLoading] = useState(true);
 
     const fetchAdmins = async () => {
         setLoading(true);
         try {
+            const base = category === 'staff' ? '/api/admin/staff' : '/api/admin';
             const [pendingRes, approvedRes] = await Promise.all([
-                api.get('/api/admin/pending'),
-                api.get('/api/admin/approved')
+                api.get(`${base}/pending`),
+                api.get(`${base}/approved`)
             ]);
             setPending(pendingRes.data.data);
             setApproved(approvedRes.data.data);
@@ -24,11 +26,12 @@ export default function ManageAdmins() {
         }
     };
 
-    useEffect(() => { fetchAdmins(); }, []);
+    useEffect(() => { fetchAdmins(); }, [category]);
 
     const handleApprove = async (userId, name) => {
         try {
-            await api.put(`/api/admin/approve/${userId}`);
+            const base = category === 'staff' ? '/api/admin/staff' : '/api/admin';
+            await api.put(`${base}/approve/${userId}`);
             toast.success(`${name} approved!`);
             fetchAdmins();
         } catch (err) {
@@ -39,7 +42,8 @@ export default function ManageAdmins() {
     const handleReject = async (userId, name) => {
         if (!window.confirm(`Reject and delete ${name}'s application?`)) return;
         try {
-            await api.delete(`/api/admin/reject/${userId}`);
+            const base = category === 'staff' ? '/api/admin/staff' : '/api/admin';
+            await api.delete(`${base}/reject/${userId}`);
             toast.success(`${name} rejected.`);
             fetchAdmins();
         } catch (err) {
@@ -49,12 +53,34 @@ export default function ManageAdmins() {
 
     const list = activeTab === 'pending' ? pending : approved;
 
+    const title = category === 'staff' ? 'Manage Staff Accounts' : 'Manage Cinema Partners';
+    const subtitle = category === 'staff'
+        ? 'Approve or reject staff members who can scan tickets'
+        : 'Approve or reject cinema chains that want to list on CineReserve Pro';
+
     return (
         <div style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>Manage Cinema Partners</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                Approve or reject cinema chains that want to list on CineReserve Pro
-            </p>
+            <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>{title}</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>{subtitle}</p>
+
+            {/* Category Tabs */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                {[{ key: 'partners', label: 'Cinema Partners' }, { key: 'staff', label: 'Staff Accounts' }].map(tab => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setCategory(tab.key)}
+                        style={{
+                            padding: '0.5rem 1.2rem', borderRadius: 'var(--radius-sm)',
+                            border: category === tab.key ? '1px solid rgba(229,9,20,0.5)' : '1px solid var(--border)',
+                            background: category === tab.key ? 'rgba(229,9,20,0.15)' : 'transparent',
+                            color: category === tab.key ? '#fff' : 'var(--text-muted)',
+                            fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
+                        }}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
@@ -82,7 +108,11 @@ export default function ManageAdmins() {
                     textAlign: 'center', padding: '3rem', color: 'var(--text-muted)',
                     border: '1px dashed var(--border)', borderRadius: 'var(--radius-md)',
                 }}>
-                    {activeTab === 'pending' ? 'No pending applications 🎉' : 'No approved cinema partners yet'}
+                    {activeTab === 'pending'
+                        ? 'No pending applications 🎉'
+                        : category === 'staff'
+                            ? 'No approved staff yet'
+                            : 'No approved cinema partners yet'}
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -94,7 +124,9 @@ export default function ManageAdmins() {
                         }}>
                             <div>
                                 <p style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>
-                                    🏛️ {user.businessName || 'Unnamed Cinema'}
+                                    {category === 'staff'
+                                        ? `🧑‍💼 ${user.name}`
+                                        : `🏛️ ${user.businessName || 'Unnamed Cinema'}`}
                                 </p>
                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                     {user.name} · {user.email} · {user.phone || 'No phone'}

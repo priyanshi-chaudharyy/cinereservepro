@@ -1,12 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { bookingAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function MyBookings() {
     const navigate = useNavigate();
-    const [showPast, setShowPast] = useState(false);
 
     const { data: bookings, isLoading, error } = useQuery({
         queryKey: ['myBookings'],
@@ -33,27 +31,13 @@ export default function MyBookings() {
 
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
     const visibleBookings = (bookings || []).filter(booking => {
-        if (showPast) return true;
         const showDate = booking.showtimeId?.showDate ? new Date(booking.showtimeId.showDate) : null;
         return !showDate || showDate >= todayStart;
     });
 
     return (
         <div className="container section" style={{ padding: '3rem 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.8rem' }}>🎟 My Bookings</h1>
-                <button
-                    type="button"
-                    onClick={() => setShowPast(prev => !prev)}
-                    style={{
-                        padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                        border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)',
-                        cursor: 'pointer'
-                    }}
-                >
-                    {showPast ? 'Hide Past Tickets' : 'Show Past Tickets'}
-                </button>
-            </div>
+            <h1 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>🎟 My Bookings</h1>
 
             {visibleBookings.length === 0 ? (
                 <div style={{
@@ -63,7 +47,7 @@ export default function MyBookings() {
                 }}>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>No bookings to show</p>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                        {showPast ? 'You have no past tickets yet.' : 'Book your next movie ticket now!'}
+                        Book your next movie ticket now!
                     </p>
                     <Link to="/" className="btn-primary" style={{ textDecoration: 'none', padding: '0.6rem 1.5rem' }}>
                         Browse Movies

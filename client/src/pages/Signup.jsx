@@ -34,8 +34,8 @@ export default function Signup() {
                 toast.success('Registration submitted! Awaiting admin approval.', { duration: 5000 });
                 navigate('/login');
             } else if (accountType === 'staff') {
-                toast.success('Staff account created!');
-                navigate('/scanner');
+                toast.success('Staff registration submitted! Awaiting admin approval.', { duration: 5000 });
+                navigate('/login');
             } else {
                 toast.success('Account created successfully! 🎉');
                 navigate('/');
@@ -215,9 +215,11 @@ export default function Signup() {
                     </button>
                 </form>
 
-                {isCinemaPartner && (
+                {(isCinemaPartner || accountType === 'staff') && (
                     <p style={{ marginTop: '0.8rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-                        Cinema partner accounts require admin approval before activation.
+                        {isCinemaPartner
+                            ? 'Cinema partner accounts require admin approval before activation.'
+                            : 'Staff accounts require admin approval before activation.'}
                     </p>
                 )}
 
