@@ -8,7 +8,7 @@ export const getMyBookings = async (req, res) => {
         const bookings = await Booking.find({ userId: req.user._id })
             .populate('movieId', 'title posterUrl genre duration')
             .populate('theaterId', 'name location')
-            .populate('showtimeId', 'showTime pricing')
+            .populate('showtimeId', 'showTime showDate pricing')
             .sort({ createdAt: -1 });
 
         res.json({ success: true, count: bookings.length, data: bookings });

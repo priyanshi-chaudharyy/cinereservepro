@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { movieAPI, theaterAPI } from '../services/api';
 import api from '../api/axios';
 import MovieCard from '../components/MovieCard';
-import { useNavigate } from 'react-router-dom';
 
 const GENRES = ["Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller", "Animation", "Adventure", "Documentary"];
 const LANGUAGES = ["English", "Hindi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali"];
@@ -57,10 +56,16 @@ const selectStyle = {
 };
 
 export default function Home() {
-  const [search, setSearch] = useState('');
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [selectedLanguage, setSelectedLanguage] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [selectedGenres, setSelectedGenres] = useState(
+    (searchParams.get('genres') || '')
+      .split(',')
+      .map(g => g.trim())
+      .filter(Boolean)
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState(searchParams.get('language') || '');
+  const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -104,6 +109,19 @@ export default function Home() {
       prev.includes(g) ? prev.filter(genre => genre !== g) : [...prev, g]
     );
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (selectedGenres.length > 0) params.set('genres', selectedGenres.join(','));
+    if (selectedLanguage) params.set('language', selectedLanguage);
+    if (selectedLocation) params.set('location', selectedLocation);
+    const next = params.toString();
+    const current = searchParams.toString();
+    if (next !== current) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [search, selectedGenres, selectedLanguage, selectedLocation, searchParams, setSearchParams]);
 
   const clearFilters = () => { setSearch(''); setSelectedGenres([]); setSelectedLanguage(''); setSelectedLocation(''); };
   const hasFilters = search || selectedGenres.length > 0 || selectedLanguage || selectedLocation;

@@ -6,11 +6,11 @@ export const protect=async (req,res,next)=>{
     try{
         let token;
 
-        //check for token in cookies or Authorization header
-        if(req.cookies.token){
-            token=req.cookies.token;
-        }else if(req.headers.authorization?.startsWith('Bearer')){
+        //check for token in Authorization header first, then cookie
+        if(req.headers.authorization?.startsWith('Bearer')){
             token=req.headers.authorization.split(' ')[1];
+        }else if(req.cookies.token){
+            token=req.cookies.token;
         }
 
         if(!token){

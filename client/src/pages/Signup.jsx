@@ -9,6 +9,7 @@ export default function Signup() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const isCinemaPartner = accountType === 'theater_admin';
 
     const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
