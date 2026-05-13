@@ -221,6 +221,17 @@ export default function Layout() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               <span>help@cinereserve.pro</span>
               <span>+91 90000 00000</span>
+              <span>Terms & Conditions</span>
+              <span>Privacy Policy</span>
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, marginBottom: '0.7rem' }}>Follow Us</div>
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>IG</span>
+              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>FB</span>
+              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>X</span>
             </div>
           </div>
         </div>

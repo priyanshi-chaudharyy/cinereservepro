@@ -46,6 +46,7 @@ export default function MovieShowtimes() {
     const [maxPrice, setMaxPrice] = useState('');
     const [language, setLanguage] = useState('');
     const [hoveredShowtimeId, setHoveredShowtimeId] = useState(null);
+    const [filtersOpen, setFiltersOpen] = useState(true);
 
     const { data: movie } = useQuery({
         queryKey: ['movie', movieId],
@@ -204,65 +205,80 @@ export default function MovieShowtimes() {
 
             {/* Filters */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
-                    <div style={{ minWidth: '200px' }}>
-                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Formats</div>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            {FORMAT_FILTERS.map(f => (
-                                <button key={f.key} onClick={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
-                                    style={{
-                                        padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                        border: selectedFormats.includes(f.key) ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
-                                        background: selectedFormats.includes(f.key) ? 'rgba(229,9,20,0.15)' : 'transparent',
-                                        color: selectedFormats.includes(f.key) ? '#fff' : 'var(--text-secondary)',
-                                        cursor: 'pointer'
-                                    }}>
-                                    {f.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                <button
+                    type="button"
+                    onClick={() => setFiltersOpen(prev => !prev)}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        border: '1px solid var(--border)', background: 'transparent',
+                        color: 'var(--text-secondary)', padding: '0.4rem 0.8rem',
+                        borderRadius: '999px', fontSize: '0.85rem', cursor: 'pointer'
+                    }}
+                >
+                    Filters <span style={{ fontSize: '0.85rem' }}>{filtersOpen ? '▴' : '▾'}</span>
+                </button>
 
-                    <div style={{ minWidth: '200px' }}>
-                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Time of Day</div>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            {TIME_FILTERS.map(t => (
-                                <button key={t.key} onClick={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
-                                    style={{
-                                        padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                        border: selectedTimes.includes(t.key) ? '1px solid rgba(251,191,36,0.6)' : '1px solid var(--border)',
-                                        background: selectedTimes.includes(t.key) ? 'rgba(251,191,36,0.12)' : 'transparent',
-                                        color: selectedTimes.includes(t.key) ? '#fbbf24' : 'var(--text-secondary)',
-                                        cursor: 'pointer'
-                                    }}>
-                                    {t.label}
-                                </button>
-                            ))}
+                {filtersOpen && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginTop: '1rem' }}>
+                        <div style={{ minWidth: '200px' }}>
+                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Formats</div>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                {FORMAT_FILTERS.map(f => (
+                                    <button key={f.key} onClick={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
+                                        style={{
+                                            padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
+                                            border: selectedFormats.includes(f.key) ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
+                                            background: selectedFormats.includes(f.key) ? 'rgba(229,9,20,0.15)' : 'transparent',
+                                            color: selectedFormats.includes(f.key) ? '#fff' : 'var(--text-secondary)',
+                                            cursor: 'pointer'
+                                        }}>
+                                        {f.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div style={{ minWidth: '200px' }}>
-                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Price</div>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <input
-                                className="input-base"
-                                placeholder="Min"
-                                type="number"
-                                value={minPrice}
-                                onChange={e => setMinPrice(e.target.value)}
-                                style={{ width: '100%' }}
-                            />
-                            <input
-                                className="input-base"
-                                placeholder="Max"
-                                type="number"
-                                value={maxPrice}
-                                onChange={e => setMaxPrice(e.target.value)}
-                                style={{ width: '100%' }}
-                            />
+                        <div style={{ minWidth: '200px' }}>
+                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Time of Day</div>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                {TIME_FILTERS.map(t => (
+                                    <button key={t.key} onClick={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
+                                        style={{
+                                            padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
+                                            border: selectedTimes.includes(t.key) ? '1px solid rgba(251,191,36,0.6)' : '1px solid var(--border)',
+                                            background: selectedTimes.includes(t.key) ? 'rgba(251,191,36,0.12)' : 'transparent',
+                                            color: selectedTimes.includes(t.key) ? '#fbbf24' : 'var(--text-secondary)',
+                                            cursor: 'pointer'
+                                        }}>
+                                        {t.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ minWidth: '200px' }}>
+                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Price</div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    className="input-base"
+                                    placeholder="Min"
+                                    type="number"
+                                    value={minPrice}
+                                    onChange={e => setMinPrice(e.target.value)}
+                                    style={{ width: '100%' }}
+                                />
+                                <input
+                                    className="input-base"
+                                    placeholder="Max"
+                                    type="number"
+                                    value={maxPrice}
+                                    onChange={e => setMaxPrice(e.target.value)}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Theater groups */}
@@ -277,11 +293,6 @@ export default function MovieShowtimes() {
                                     <div style={{ fontWeight: 700, fontSize: '1rem' }}>{theater?.name}</div>
                                     <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{theater?.location?.city}</div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                    {(theater?.facilities || []).map(f => (
-                                        <span key={f} style={{ fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{f}</span>
-                                    ))}
-                                </div>
                             </div>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
@@ -292,14 +303,26 @@ export default function MovieShowtimes() {
                                         onMouseEnter={() => setHoveredShowtimeId(s._id)}
                                         onMouseLeave={() => setHoveredShowtimeId(null)}
                                         style={{
-                                            padding: '0.55rem 1rem', borderRadius: '10px', cursor: 'pointer',
+                                            padding: '0.55rem 1rem', borderRadius: '10px', cursor: 'pointer', position: 'relative',
                                             border: '1px solid rgba(229,9,20,0.4)', background: 'rgba(229,9,20,0.12)',
                                             color: '#fff', fontWeight: 700
                                         }}
                                     >
                                         {formatTime(s.showTime)}
                                         {hoveredShowtimeId === s._id && (
-                                            <span style={{ marginLeft: '0.5rem', color: '#fbbf24', fontSize: '0.75rem' }}>
+                                            <span style={{
+                                                position: 'absolute',
+                                                top: '-28px',
+                                                left: '50%',
+                                                transform: 'translateX(-50%)',
+                                                padding: '4px 8px',
+                                                borderRadius: '6px',
+                                                background: 'rgba(10,2,3,0.9)',
+                                                border: '1px solid rgba(251,191,36,0.4)',
+                                                color: '#fbbf24',
+                                                fontSize: '0.75rem',
+                                                whiteSpace: 'nowrap'
+                                            }}>
                                                 ₹{getShowMinPrice(s.pricing)}
                                             </span>
                                         )}

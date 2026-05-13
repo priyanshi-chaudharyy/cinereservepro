@@ -73,28 +73,6 @@ export default function ManageAdmins() {
             <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>{title}</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>{subtitle}</p>
 
-            {/* Category Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                {[{ key: 'partners', label: 'Cinema Partners' }, { key: 'staff', label: 'Staff Accounts' }].map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => {
-                            setCategory(tab.key);
-                            setSearchParams({ category: tab.key }, { replace: true });
-                        }}
-                        style={{
-                            padding: '0.5rem 1.2rem', borderRadius: 'var(--radius-sm)',
-                            border: category === tab.key ? '1px solid rgba(229,9,20,0.5)' : '1px solid var(--border)',
-                            background: category === tab.key ? 'rgba(229,9,20,0.15)' : 'transparent',
-                            color: category === tab.key ? '#fff' : 'var(--text-muted)',
-                            fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
-                        }}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
-
             {/* Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
                 {['pending', 'approved'].map(tab => (

@@ -127,6 +127,7 @@ export default function MovieInfo() {
                             state={{ location: userLocation }}
                             className="btn-primary"
                             style={{ textDecoration: 'none' }}
+                            onClick={() => sessionStorage.setItem('redirectTo', `/movie/${movieId}/showtimes`)}
                         >
                             Book Ticket
                         </Link>
@@ -153,7 +154,9 @@ export default function MovieInfo() {
                                             {member.imageUrl ? (
                                                 <img src={member.imageUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
-                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Image</div>
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.5rem', background: 'linear-gradient(135deg, rgba(229,9,20,0.2), rgba(15,3,5,0.6))' }}>
+                                                    {(member.name || '?').charAt(0)}
+                                                </div>
                                             )}
                                         </div>
                                         <div style={{ fontWeight: 700 }}>{member.name}</div>
@@ -176,7 +179,9 @@ export default function MovieInfo() {
                                             {member.imageUrl ? (
                                                 <img src={member.imageUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
-                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Image</div>
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.5rem', background: 'linear-gradient(135deg, rgba(229,9,20,0.2), rgba(15,3,5,0.6))' }}>
+                                                    {(member.name || '?').charAt(0)}
+                                                </div>
                                             )}
                                         </div>
                                         <div style={{ fontWeight: 700 }}>{member.name}</div>
