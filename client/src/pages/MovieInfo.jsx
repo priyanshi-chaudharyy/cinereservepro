@@ -128,6 +128,7 @@ export default function MovieInfo() {
                             className="btn-primary"
                             style={{ textDecoration: 'none' }}
                             onClick={() => sessionStorage.setItem('redirectTo', `/movie/${movieId}/showtimes`)}
+                            aria-label="Book tickets"
                         >
                             Book Ticket
                         </Link>
