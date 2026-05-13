@@ -133,7 +133,7 @@ export default function MovieInfo() {
                             Book Ticket
                         </Link>
                         {movie.trailerUrl && (
-                            <a href={movie.trailerUrl} target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none' }}>
+                            <a href={movie.trailerUrl} target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none' }} aria-label="Watch trailer">
                                 ▶ Watch Trailer
                             </a>
                         )}
