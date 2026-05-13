@@ -2,7 +2,13 @@ import { Link } from 'react-router-dom';
 
 export default function MovieCard({ movie, selectedLocation }) {
   return (
-    <div className="card" style={{ cursor: 'pointer', position: 'relative' }} role="article">
+    <Link
+      to={`/movie/${movie._id}`}
+      state={{ location: selectedLocation }}
+      className="card"
+      style={{ cursor: 'pointer', position: 'relative', display: 'block', textDecoration: 'none' }}
+      role="article"
+    >
       {/* Poster */}
       <div style={{ position: 'relative', aspectRatio: '2/3', overflow: 'hidden', background: 'var(--bg-elevated)' }}>
         {movie.posterUrl ? (
@@ -28,22 +34,6 @@ export default function MovieCard({ movie, selectedLocation }) {
           background: 'linear-gradient(to top, rgba(7,7,13,0.95) 0%, rgba(7,7,13,0.3) 60%, transparent 100%)',
           pointerEvents: 'none',
         }} />
-
-        {/* Hover overlay with Book Now */}
-        <div className="movie-card-overlay" style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '0.5rem',
-          background: 'rgba(7,7,13,0.65)',
-          opacity: 0, transition: 'opacity 0.3s ease',
-          backdropFilter: 'blur(4px)',
-        }}
-          onMouseEnter={e => e.currentTarget.style.opacity = 1}
-          onMouseLeave={e => e.currentTarget.style.opacity = 0}
-        >
-          <Link to={`/movie/${movie._id}`} state={{ location: selectedLocation }} className="btn-primary" style={{ borderRadius: '999px', padding: '0.55rem 1.4rem', fontSize: '0.85rem', textDecoration: 'none' }}>
-            View Info
-          </Link>
-        </div>
 
         {/* Rating badge */}
         {(movie.averageRating > 0 || movie.rating > 0) && (
@@ -79,6 +69,6 @@ export default function MovieCard({ movie, selectedLocation }) {
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

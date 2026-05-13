@@ -45,6 +45,7 @@ export default function MovieShowtimes() {
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [language, setLanguage] = useState('');
+    const [hoveredShowtimeId, setHoveredShowtimeId] = useState(null);
 
     const { data: movie } = useQuery({
         queryKey: ['movie', movieId],
@@ -139,6 +140,7 @@ export default function MovieShowtimes() {
             await api.get('/api/auth/me');
             navigate(`/booking/${showtimeId}`);
         } catch {
+            sessionStorage.setItem('redirectTo', `/movie/${movieId}/showtimes`);
             toast.error('Please login to book tickets');
             navigate('/login');
         }
@@ -201,62 +203,64 @@ export default function MovieShowtimes() {
             )}
 
             {/* Filters */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                    <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Formats</div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {FORMAT_FILTERS.map(f => (
-                            <button key={f.key} onClick={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
-                                style={{
-                                    padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                    border: selectedFormats.includes(f.key) ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
-                                    background: selectedFormats.includes(f.key) ? 'rgba(229,9,20,0.15)' : 'transparent',
-                                    color: selectedFormats.includes(f.key) ? '#fff' : 'var(--text-secondary)',
-                                    cursor: 'pointer'
-                                }}>
-                                {f.label}
-                            </button>
-                        ))}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+                    <div style={{ minWidth: '200px' }}>
+                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Formats</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {FORMAT_FILTERS.map(f => (
+                                <button key={f.key} onClick={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
+                                    style={{
+                                        padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
+                                        border: selectedFormats.includes(f.key) ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
+                                        background: selectedFormats.includes(f.key) ? 'rgba(229,9,20,0.15)' : 'transparent',
+                                        color: selectedFormats.includes(f.key) ? '#fff' : 'var(--text-secondary)',
+                                        cursor: 'pointer'
+                                    }}>
+                                    {f.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
 
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                    <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Time of Day</div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {TIME_FILTERS.map(t => (
-                            <button key={t.key} onClick={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
-                                style={{
-                                    padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                    border: selectedTimes.includes(t.key) ? '1px solid rgba(251,191,36,0.6)' : '1px solid var(--border)',
-                                    background: selectedTimes.includes(t.key) ? 'rgba(251,191,36,0.12)' : 'transparent',
-                                    color: selectedTimes.includes(t.key) ? '#fbbf24' : 'var(--text-secondary)',
-                                    cursor: 'pointer'
-                                }}>
-                                {t.label}
-                            </button>
-                        ))}
+                    <div style={{ minWidth: '200px' }}>
+                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Time of Day</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {TIME_FILTERS.map(t => (
+                                <button key={t.key} onClick={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
+                                    style={{
+                                        padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
+                                        border: selectedTimes.includes(t.key) ? '1px solid rgba(251,191,36,0.6)' : '1px solid var(--border)',
+                                        background: selectedTimes.includes(t.key) ? 'rgba(251,191,36,0.12)' : 'transparent',
+                                        color: selectedTimes.includes(t.key) ? '#fbbf24' : 'var(--text-secondary)',
+                                        cursor: 'pointer'
+                                    }}>
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
 
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                    <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Price</div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input
-                            className="input-base"
-                            placeholder="Min"
-                            type="number"
-                            value={minPrice}
-                            onChange={e => setMinPrice(e.target.value)}
-                            style={{ width: '100%' }}
-                        />
-                        <input
-                            className="input-base"
-                            placeholder="Max"
-                            type="number"
-                            value={maxPrice}
-                            onChange={e => setMaxPrice(e.target.value)}
-                            style={{ width: '100%' }}
-                        />
+                    <div style={{ minWidth: '200px' }}>
+                        <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Price</div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                className="input-base"
+                                placeholder="Min"
+                                type="number"
+                                value={minPrice}
+                                onChange={e => setMinPrice(e.target.value)}
+                                style={{ width: '100%' }}
+                            />
+                            <input
+                                className="input-base"
+                                placeholder="Max"
+                                type="number"
+                                value={maxPrice}
+                                onChange={e => setMaxPrice(e.target.value)}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -285,6 +289,8 @@ export default function MovieShowtimes() {
                                     <button
                                         key={s._id}
                                         onClick={() => handleBook(s._id)}
+                                        onMouseEnter={() => setHoveredShowtimeId(s._id)}
+                                        onMouseLeave={() => setHoveredShowtimeId(null)}
                                         style={{
                                             padding: '0.55rem 1rem', borderRadius: '10px', cursor: 'pointer',
                                             border: '1px solid rgba(229,9,20,0.4)', background: 'rgba(229,9,20,0.12)',
@@ -292,7 +298,11 @@ export default function MovieShowtimes() {
                                         }}
                                     >
                                         {formatTime(s.showTime)}
-                                        <span style={{ marginLeft: '0.5rem', color: '#fbbf24', fontSize: '0.75rem' }}>₹{getShowMinPrice(s.pricing)}</span>
+                                        {hoveredShowtimeId === s._id && (
+                                            <span style={{ marginLeft: '0.5rem', color: '#fbbf24', fontSize: '0.75rem' }}>
+                                                ₹{getShowMinPrice(s.pricing)}
+                                            </span>
+                                        )}
                                     </button>
                                 ))}
                             </div>

@@ -21,8 +21,12 @@ export default function Login() {
             const { role } = res.data.data;
             if (res.data.token) sessionStorage.setItem('token', res.data.token);
             toast.success(`Welcome back! 👋`);
+            const redirectTo = sessionStorage.getItem('redirectTo');
             if (role === 'admin') {
                 navigate('/admin/add-movie');
+            } else if (redirectTo) {
+                sessionStorage.removeItem('redirectTo');
+                navigate(redirectTo);
             } else {
                 navigate('/');
             }
@@ -54,8 +58,12 @@ export default function Login() {
 
             toast.success(`Welcome ${user.displayName}!`);
 
+            const redirectTo = sessionStorage.getItem('redirectTo');
             if (role === 'admin') {
                 navigate('/admin/add-movie');
+            } else if (redirectTo) {
+                sessionStorage.removeItem('redirectTo');
+                navigate(redirectTo);
             } else {
                 navigate('/');
             }

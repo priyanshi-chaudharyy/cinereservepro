@@ -128,7 +128,7 @@ export default function MovieInfo() {
                             className="btn-primary"
                             style={{ textDecoration: 'none' }}
                         >
-                            View Showtimes
+                            Book Ticket
                         </Link>
                         {movie.trailerUrl && (
                             <a href={movie.trailerUrl} target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none' }}>
@@ -139,29 +139,57 @@ export default function MovieInfo() {
                 </div>
             </div>
 
-            {/* Cast */}
-            {movie.cast && movie.cast.length > 0 && (
+            {(movie.cast && movie.cast.length > 0) || (movie.crew && movie.crew.length > 0) ? (
                 <div style={{ marginBottom: '3rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Cast</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
-                        {movie.cast.map((member, index) => (
-                            <div key={`${member.name}-${index}`} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.9rem', textAlign: 'center' }}>
-                                <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-elevated)', marginBottom: '0.6rem' }}>
-                                    {member.imageUrl ? (
-                                        <img src={member.imageUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Image</div>
-                                    )}
-                                </div>
-                                <div style={{ fontWeight: 700 }}>{member.name}</div>
-                                {member.role && (
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{member.role}</div>
-                                )}
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Cast & Crew</h2>
+
+                    {movie.cast && movie.cast.length > 0 && (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Cast</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
+                                {movie.cast.map((member, index) => (
+                                    <div key={`cast-${member.name}-${index}`} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.9rem', textAlign: 'center' }}>
+                                        <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-elevated)', marginBottom: '0.6rem' }}>
+                                            {member.imageUrl ? (
+                                                <img src={member.imageUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Image</div>
+                                            )}
+                                        </div>
+                                        <div style={{ fontWeight: 700 }}>{member.name}</div>
+                                        {member.role && (
+                                            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{member.role}</div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    )}
+
+                    {movie.crew && movie.crew.length > 0 && (
+                        <div>
+                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Crew</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
+                                {movie.crew.map((member, index) => (
+                                    <div key={`crew-${member.name}-${index}`} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.9rem', textAlign: 'center' }}>
+                                        <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-elevated)', marginBottom: '0.6rem' }}>
+                                            {member.imageUrl ? (
+                                                <img src={member.imageUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Image</div>
+                                            )}
+                                        </div>
+                                        <div style={{ fontWeight: 700 }}>{member.name}</div>
+                                        {member.role && (
+                                            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{member.role}</div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            ) : null}
 
             {/* Reviews */}
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>

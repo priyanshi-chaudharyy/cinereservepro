@@ -193,8 +193,8 @@ export default function Layout() {
 
       <main><Outlet /></main>
 
-      <footer style={{ borderTop: '1px solid rgba(229,9,20,0.15)', padding: '3rem 0', marginTop: '4rem', background: 'radial-gradient(circle at top, rgba(229,9,20,0.08), transparent 60%)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem' }}>
+      <footer style={{ borderTop: '1px solid rgba(229,9,20,0.15)', padding: '2.2rem 0', marginTop: '4rem', background: 'radial-gradient(circle at top, rgba(229,9,20,0.08), transparent 60%)' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.8rem' }}>
               <ReelIcon />
@@ -203,7 +203,7 @@ export default function Layout() {
               </span>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>
-              Book premium seats, discover new releases, and manage your cinema experience in one place.
+              Premium cinema booking made simple.
             </p>
           </div>
 
@@ -221,24 +221,11 @@ export default function Layout() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               <span>help@cinereserve.pro</span>
               <span>+91 90000 00000</span>
-              <span>24x7 Customer Care</span>
-            </div>
-          </div>
-
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: '0.7rem' }}>Get the App</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <button style={{ padding: '0.6rem 0.9rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.04)', color: '#fff', textAlign: 'left' }}>
-                App Store
-              </button>
-              <button style={{ padding: '0.6rem 0.9rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.04)', color: '#fff', textAlign: 'left' }}>
-                Google Play
-              </button>
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+        <div style={{ marginTop: '1.6rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
           The premium way to reserve your cinema seat. © {new Date().getFullYear()}
         </div>
       </footer>
