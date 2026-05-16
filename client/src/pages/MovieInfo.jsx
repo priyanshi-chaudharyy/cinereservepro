@@ -110,28 +110,56 @@ export default function MovieInfo() {
                             </span>
                         )}
                     </div>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>
-                        {movie.director && `Directed by ${movie.director} • `}
-                        {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
-                    </p>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                        {movie.genre?.map(g => <span key={g} className="badge badge-crimson">{g}</span>)}
-                        {movie.language?.map(l => <span key={l} className="badge badge-silver">{l}</span>)}
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.9rem', flexWrap: 'wrap' }}>
+                        <span style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+                        </span>
+                        {movie.certification && (
+                            <span style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                {movie.certification}
+                            </span>
+                        )}
+                        {movie.language?.map(l => (
+                            <span key={l} style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                {l}
+                            </span>
+                        ))}
+                        {movie.genre?.map(g => (
+                            <span key={g} style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                {g}
+                            </span>
+                        ))}
+                        {movie.releasedDate && (
+                            <span style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                {new Date(movie.releasedDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </span>
+                        )}
                     </div>
+                    {movie.director && (
+                        <div style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.95rem' }}>
+                            Directed by {movie.director}
+                        </div>
+                    )}
                     <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, fontSize: '1.05rem', maxWidth: '800px' }}>
                         {movie.description}
                     </p>
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
-                        <Link
-                            to={`/movie/${movieId}/showtimes`}
-                            state={{ location: userLocation }}
-                            className="btn-primary"
-                            style={{ textDecoration: 'none' }}
-                            onClick={() => sessionStorage.setItem('redirectTo', `/movie/${movieId}/showtimes`)}
-                            aria-label="Book tickets"
-                        >
-                            Book Ticket
-                        </Link>
+                        {movie.isComingSoon ? (
+                            <div className="btn-primary" style={{ textDecoration: 'none', background: 'var(--bg-elevated)', color: 'var(--gold)', borderColor: 'var(--gold)', cursor: 'default' }}>
+                                Releasing Soon
+                            </div>
+                        ) : (
+                            <Link
+                                to={`/movie/${movieId}/showtimes`}
+                                state={{ location: userLocation }}
+                                className="btn-primary"
+                                style={{ textDecoration: 'none' }}
+                                onClick={() => sessionStorage.setItem('redirectTo', `/movie/${movieId}/showtimes`)}
+                                aria-label="Book tickets"
+                            >
+                                Book Ticket
+                            </Link>
+                        )}
                         {movie.trailerUrl && (
                             <a href={movie.trailerUrl} target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none' }} aria-label="Watch trailer">
                                 ▶ Watch Trailer

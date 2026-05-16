@@ -232,11 +232,6 @@ export default function BookingPage() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                         {theater?.name} · {showtime.showTime}
                     </p>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                        <span className="badge badge-red">VIP ₹{showtime.pricing?.vip}</span>
-                        <span className="badge badge-red" style={{ opacity: 0.7 }}>Premium ₹{showtime.pricing?.premium}</span>
-                        <span className="badge badge-silver">Economy ₹{showtime.pricing?.economy}</span>
-                    </div>
                 </div>
             </div>
             {/* Seat Grid */}

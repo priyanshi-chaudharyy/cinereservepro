@@ -18,7 +18,7 @@ import Showtime from '../models/Showtime.js';
 //@access Public
 export const getAllMovies = async (req, res) => {
     try {
-        const { search, genre, language, isActive, location } = req.query;
+        const { search, genre, language, format, isActive, location, isFeatured, isTrending, isComingSoon } = req.query;
 
         const filter = {};
         if (search) {
@@ -30,8 +30,24 @@ export const getAllMovies = async (req, res) => {
         if (language) {
             filter.language = language;
         }
+        if (format) {
+            filter.format = format;
+        }
         if (isActive !== undefined) {
             filter.isActive = isActive == 'true';
+        }
+        if (isFeatured !== undefined) {
+            filter.isFeatured = isFeatured == 'true';
+        }
+        if (isTrending !== undefined) {
+            filter.isTrending = isTrending == 'true';
+        }
+        if (isComingSoon !== undefined) {
+            if (isComingSoon === 'false') {
+                filter.isComingSoon = { $ne: true };
+            } else {
+                filter.isComingSoon = isComingSoon === 'true';
+            }
         }
         if (location) {
             const theaters = await Theater.find({ 'location.city': { $regex: new RegExp(`^${location}$`, 'i') }, isActive: true }).select('_id');

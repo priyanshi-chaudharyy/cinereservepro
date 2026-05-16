@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { showtimeAPI, movieAPI } from '../services/api';
@@ -18,19 +18,49 @@ const FORMAT_FILTERS = [
     { key: '4DX', label: '4DX' },
 ];
 
+const PRICE_RANGES = [
+    { label: 'Any Price', min: '', max: '' },
+    { label: '0 - 100', min: 0, max: 100 },
+    { label: '101 - 200', min: 101, max: 200 },
+    { label: '201 - 300', min: 201, max: 300 },
+    { label: '301 - 500', min: 301, max: 500 },
+    { label: '501+', min: 501, max: '' },
+];
+
 const formatTime = (timeStr) => timeStr || '';
 
 const getHourFromTime = (timeStr) => {
     if (!timeStr) return null;
-    const parts = timeStr.split(':');
-    const hour = Number(parts[0]);
-    return Number.isNaN(hour) ? null : hour;
+    const trimmed = timeStr.trim();
+    const match = trimmed.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/i);
+    if (!match) return null;
+    let hour = Number(match[1]);
+    if (Number.isNaN(hour)) return null;
+    const meridiem = match[3]?.toUpperCase();
+    if (meridiem === 'PM' && hour < 12) hour += 12;
+    if (meridiem === 'AM' && hour === 12) hour = 0;
+    return hour;
 };
 
 const getShowMinPrice = (pricing) => {
     if (!pricing) return 0;
     const vals = [pricing.vip, pricing.premium, pricing.economy].filter(v => typeof v === 'number');
     return vals.length ? Math.min(...vals) : 0;
+};
+
+const getPricingEntries = (pricing) => {
+    if (!pricing) return [];
+    const mapping = [
+        { key: 'economy', label: 'Economy' },
+        { key: 'premium', label: 'Premium' },
+        { key: 'vip', label: 'VIP' },
+    ];
+    return mapping
+        .map(item => ({
+            label: item.label,
+            value: pricing[item.key]
+        }))
+        .filter(item => typeof item.value === 'number');
 };
 
 export default function MovieShowtimes() {
@@ -42,11 +72,30 @@ export default function MovieShowtimes() {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedFormats, setSelectedFormats] = useState([]);
     const [selectedTimes, setSelectedTimes] = useState([]);
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
-    const [language, setLanguage] = useState('');
+    const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
+    const [selectedLanguages, setSelectedLanguages] = useState([]);
+    const [openLanguageFilter, setOpenLanguageFilter] = useState(false);
+    const [openFormatFilter, setOpenFormatFilter] = useState(false);
+    const [openTimeFilter, setOpenTimeFilter] = useState(false);
+    const [openPriceFilter, setOpenPriceFilter] = useState(false);
+
+    const languageRef = useRef(null);
+    const formatRef = useRef(null);
+    const timeRef = useRef(null);
+    const priceRef = useRef(null);
+
+    useEffect(() => {
+        const handleClick = (event) => {
+            const target = event.target;
+            if (languageRef.current && !languageRef.current.contains(target)) setOpenLanguageFilter(false);
+            if (formatRef.current && !formatRef.current.contains(target)) setOpenFormatFilter(false);
+            if (timeRef.current && !timeRef.current.contains(target)) setOpenTimeFilter(false);
+            if (priceRef.current && !priceRef.current.contains(target)) setOpenPriceFilter(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
     const [hoveredShowtimeId, setHoveredShowtimeId] = useState(null);
-    const [filtersOpen, setFiltersOpen] = useState(true);
 
     const { data: movie } = useQuery({
         queryKey: ['movie', movieId],
@@ -90,7 +139,9 @@ export default function MovieShowtimes() {
 
             if (userLocation && s.theaterId?.location?.city !== userLocation) return false;
 
-            if (language && movie?.language && !movie.language.includes(language)) return false;
+            if (selectedLanguages.length > 0) {
+                if (!movie?.language || !selectedLanguages.some(l => movie.language.includes(l))) return false;
+            }
 
             if (selectedFormats.length > 0) {
                 const facilities = s.theaterId?.facilities || [];
@@ -100,25 +151,36 @@ export default function MovieShowtimes() {
             if (selectedTimes.length > 0) {
                 const hour = getHourFromTime(s.showTime);
                 if (hour === null) return false;
+                const adjusted = hour < 5 ? hour + 24 : hour;
                 const matches = selectedTimes.some(key => {
                     const range = TIME_FILTERS.find(t => t.key === key)?.range;
                     if (!range) return false;
                     const [start, end] = range;
-                    const adjusted = hour < 5 ? hour + 24 : hour;
                     return adjusted >= start && adjusted < end;
                 });
                 if (!matches) return false;
             }
 
-            const min = minPrice ? Number(minPrice) : null;
-            const max = maxPrice ? Number(maxPrice) : null;
-            const showMin = getShowMinPrice(s.pricing);
-            if (min !== null && showMin < min) return false;
-            if (max !== null && showMin > max) return false;
+            const priceValues = getPricingEntries(s.pricing).map(entry => entry.value);
+            if (selectedPriceRanges.length > 0) {
+                const matches = selectedPriceRanges.some(label => {
+                    const rangeChoice = PRICE_RANGES.find(r => r.label === label);
+                    if (!rangeChoice) return false;
+                    const min = rangeChoice.min !== '' ? Number(rangeChoice.min) : null;
+                    const max = rangeChoice.max !== '' ? Number(rangeChoice.max) : null;
+                    return priceValues.some(value => {
+                        if (typeof value !== 'number') return false;
+                        if (min !== null && value < min) return false;
+                        if (max !== null && value > max) return false;
+                        return true;
+                    });
+                });
+                if (!matches) return false;
+            }
 
             return true;
         });
-    }, [showtimes, selectedDate, userLocation, selectedFormats, selectedTimes, minPrice, maxPrice, language, movie]);
+    }, [showtimes, selectedDate, userLocation, selectedFormats, selectedTimes, selectedPriceRanges, selectedLanguages, movie]);
 
     const grouped = useMemo(() => {
         const map = new Map();
@@ -157,129 +219,169 @@ export default function MovieShowtimes() {
 
     return (
         <div className="container section">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '2rem', margin: 0 }}>{movie?.title || 'Showtimes'}</h1>
-                {movie?.language?.length > 0 && (
-                    <select
-                        className="input-base"
-                        value={language}
-                        onChange={e => setLanguage(e.target.value)}
-                        style={{ width: '180px' }}
-                    >
-                        <option value="">All Languages</option>
-                        {movie.language.map(l => <option key={l} value={l}>{l}</option>)}
-                    </select>
-                )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.2rem' }}>
+                <h1 style={{ fontSize: '2.4rem', margin: 0 }}>{movie?.title || 'Showtimes'}</h1>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {typeof movie?.duration === 'number' && (
+                        <span style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            Runtime: {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+                        </span>
+                    )}
+                    {movie?.certification && (
+                        <span style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {movie.certification}
+                        </span>
+                    )}
+                    {movie?.language?.map(l => (
+                        <span key={l} style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {l}
+                        </span>
+                    ))}
+                    {movie?.genre?.map(g => (
+                        <span key={g} style={{ padding: '0.25rem 0.6rem', borderRadius: '999px', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {g}
+                        </span>
+                    ))}
+                </div>
             </div>
 
             {dates.length > 0 && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                    {dates.map(dateStr => {
-                        const d = new Date(dateStr + 'T00:00:00');
-                        const isActive = selectedDate === dateStr;
-                        const isToday = dateStr === new Date().toISOString().split('T')[0];
-                        return (
-                            <button key={dateStr} onClick={() => setSelectedDate(dateStr)}
-                                style={{
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                                    padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                                    border: isActive ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
-                                    background: isActive ? 'rgba(229,9,20,0.15)' : 'var(--bg-card)',
-                                    color: isActive ? '#fff' : 'var(--text-secondary)',
-                                    transition: 'all 0.2s ease', minWidth: '65px',
-                                }}>
-                                <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: isActive ? 'var(--red-light)' : 'var(--text-muted)' }}>
-                                    {isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}
-                                </span>
-                                <span style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                                    {d.getDate()}
-                                </span>
-                                <span style={{ fontSize: '0.65rem', color: isActive ? 'var(--red-pale)' : 'var(--text-muted)' }}>
-                                    {d.toLocaleDateString('en-US', { month: 'short' })}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-            )}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {dates.map(dateStr => {
+                            const d = new Date(dateStr + 'T00:00:00');
+                            const isActive = selectedDate === dateStr;
+                            const isToday = dateStr === new Date().toISOString().split('T')[0];
+                            return (
+                                <button key={dateStr} onClick={() => setSelectedDate(dateStr)}
+                                    style={{
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                        padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                                        border: isActive ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
+                                        background: isActive ? 'rgba(229,9,20,0.15)' : 'var(--bg-card)',
+                                        color: isActive ? '#fff' : 'var(--text-secondary)',
+                                        transition: 'all 0.2s ease', minWidth: '65px',
+                                    }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: isActive ? 'var(--red-light)' : 'var(--text-muted)' }}>
+                                        {isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}
+                                    </span>
+                                    <span style={{ fontSize: '1.15rem', fontWeight: 800 }}>
+                                        {d.getDate()}
+                                    </span>
+                                    <span style={{ fontSize: '0.65rem', color: isActive ? 'var(--red-pale)' : 'var(--text-muted)' }}>
+                                        {d.toLocaleDateString('en-US', { month: 'short' })}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
 
-            {/* Filters */}
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1rem', marginBottom: '2rem' }}>
-                <button
-                    type="button"
-                    onClick={() => setFiltersOpen(prev => !prev)}
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        border: '1px solid var(--border)', background: 'transparent',
-                        color: 'var(--text-secondary)', padding: '0.4rem 0.8rem',
-                        borderRadius: '999px', fontSize: '0.85rem', cursor: 'pointer'
-                    }}
-                >
-                    Filters <span style={{ fontSize: '0.85rem' }}>{filtersOpen ? '▴' : '▾'}</span>
-                </button>
+                    <div style={{ flex: '1 1 520px' }}>
+                        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.4rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'stretch' }}>
+                            <div ref={languageRef} style={{ position: 'relative', flex: '1 1 140px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenLanguageFilter(prev => !prev)}
+                                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.45rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.82rem' }}
+                                >
+                                    <span>{selectedLanguages.length > 0 ? `${selectedLanguages.length} selected` : 'Language'}</span>
+                                    <span>▾</span>
+                                </button>
+                                    {openLanguageFilter && (
+                                        <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: 'rgba(10,2,3,0.98)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem', zIndex: 20 }}>
+                                            {(movie?.language || []).map(l => (
+                                                <label key={l} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedLanguages.includes(l)}
+                                                        onChange={() => toggleFilter(selectedLanguages, l, setSelectedLanguages)}
+                                                    />
+                                                    {l}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                {filtersOpen && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginTop: '1rem' }}>
-                        <div style={{ minWidth: '200px' }}>
-                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Formats</div>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                {FORMAT_FILTERS.map(f => (
-                                    <button key={f.key} onClick={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
-                                        style={{
-                                            padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                            border: selectedFormats.includes(f.key) ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
-                                            background: selectedFormats.includes(f.key) ? 'rgba(229,9,20,0.15)' : 'transparent',
-                                            color: selectedFormats.includes(f.key) ? '#fff' : 'var(--text-secondary)',
-                                            cursor: 'pointer'
-                                        }}>
-                                        {f.label}
-                                    </button>
-                                ))}
+                            <div ref={priceRef} style={{ position: 'relative', flex: '1 1 140px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenPriceFilter(prev => !prev)}
+                                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.45rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.82rem' }}
+                                >
+                                    <span>{selectedPriceRanges.length > 0 ? `${selectedPriceRanges.length} selected` : 'Price Range'}</span>
+                                    <span>▾</span>
+                                </button>
+                                {openPriceFilter && (
+                                    <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: 'rgba(10,2,3,0.98)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem', zIndex: 20 }}>
+                                        {PRICE_RANGES.filter(r => r.label !== 'Any Price').map(range => (
+                                            <label key={range.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedPriceRanges.includes(range.label)}
+                                                    onChange={() => toggleFilter(selectedPriceRanges, range.label, setSelectedPriceRanges)}
+                                                />
+                                                {range.label}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        </div>
 
-                        <div style={{ minWidth: '200px' }}>
-                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Time of Day</div>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                {TIME_FILTERS.map(t => (
-                                    <button key={t.key} onClick={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
-                                        style={{
-                                            padding: '0.35rem 0.9rem', borderRadius: '999px', fontSize: '0.78rem',
-                                            border: selectedTimes.includes(t.key) ? '1px solid rgba(251,191,36,0.6)' : '1px solid var(--border)',
-                                            background: selectedTimes.includes(t.key) ? 'rgba(251,191,36,0.12)' : 'transparent',
-                                            color: selectedTimes.includes(t.key) ? '#fbbf24' : 'var(--text-secondary)',
-                                            cursor: 'pointer'
-                                        }}>
-                                        {t.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                            <div ref={formatRef} style={{ position: 'relative', flex: '1 1 140px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenFormatFilter(prev => !prev)}
+                                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.45rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.82rem' }}
+                                >
+                                    <span>{selectedFormats.length > 0 ? `${selectedFormats.length} selected` : 'Special Formats'}</span>
+                                    <span>▾</span>
+                                </button>
+                                    {openFormatFilter && (
+                                        <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: 'rgba(10,2,3,0.98)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem', zIndex: 20 }}>
+                                            {FORMAT_FILTERS.map(f => (
+                                                <label key={f.key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedFormats.includes(f.key)}
+                                                        onChange={() => toggleFilter(selectedFormats, f.key, setSelectedFormats)}
+                                                    />
+                                                    {f.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                        <div style={{ minWidth: '200px' }}>
-                            <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Price</div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <input
-                                    className="input-base"
-                                    placeholder="Min"
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={e => setMinPrice(e.target.value)}
-                                    style={{ width: '100%' }}
-                                />
-                                <input
-                                    className="input-base"
-                                    placeholder="Max"
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={e => setMaxPrice(e.target.value)}
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
+                            <div ref={timeRef} style={{ position: 'relative', flex: '1 1 140px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenTimeFilter(prev => !prev)}
+                                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.45rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.82rem' }}
+                                >
+                                    <span>{selectedTimes.length > 0 ? `${selectedTimes.length} selected` : 'Preferred Time'}</span>
+                                    <span>▾</span>
+                                </button>
+                                    {openTimeFilter && (
+                                        <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: 'rgba(10,2,3,0.98)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem', zIndex: 20 }}>
+                                            {TIME_FILTERS.map(t => (
+                                                <label key={t.key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedTimes.includes(t.key)}
+                                                        onChange={() => toggleFilter(selectedTimes, t.key, setSelectedTimes)}
+                                                    />
+                                                    {t.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Theater groups */}
             {grouped.length === 0 ? (
@@ -310,21 +412,32 @@ export default function MovieShowtimes() {
                                     >
                                         {formatTime(s.showTime)}
                                         {hoveredShowtimeId === s._id && (
-                                            <span style={{
+                                            <div style={{
                                                 position: 'absolute',
-                                                top: '-28px',
+                                                top: '-68px',
                                                 left: '50%',
                                                 transform: 'translateX(-50%)',
-                                                padding: '4px 8px',
-                                                borderRadius: '6px',
-                                                background: 'rgba(10,2,3,0.9)',
+                                                padding: '0.5rem 0.6rem',
+                                                borderRadius: '10px',
+                                                background: 'rgba(10,2,3,0.95)',
                                                 border: '1px solid rgba(251,191,36,0.4)',
-                                                color: '#fbbf24',
-                                                fontSize: '0.75rem',
-                                                whiteSpace: 'nowrap'
+                                                color: 'var(--text-secondary)',
+                                                fontSize: '0.72rem',
+                                                whiteSpace: 'nowrap',
+                                                boxShadow: '0 10px 24px rgba(0,0,0,0.35)'
                                             }}>
-                                                ₹{getShowMinPrice(s.pricing)}
-                                            </span>
+                                                <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: '0.3rem', textAlign: 'center' }}>
+                                                    Seat Prices
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                                    {getPricingEntries(s.pricing).map(entry => (
+                                                        <div key={entry.label} style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                                            <span>{entry.label}</span>
+                                                            <span style={{ color: '#fbbf24', fontWeight: 700 }}>₹{entry.value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         )}
                                     </button>
                                 ))}

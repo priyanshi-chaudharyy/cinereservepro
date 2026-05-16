@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { movieAPI, showtimeAPI } from '../services/api';
@@ -35,6 +35,10 @@ export default function MovieDetails() {
     const [selectedTheater, setSelectedTheater] = useState('');
     const [reviewRating, setReviewRating] = useState(10);
     const [reviewComment, setReviewComment] = useState('');
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     
     const { data: currentUser } = useQuery({
         queryKey: ['currentUser'],
@@ -201,123 +205,134 @@ export default function MovieDetails() {
 
             {/* Showtimes section */}
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-                <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Available Showtimes</h2>
-
-                {/* Date Tabs */}
-                {dates.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
-                        {dates.map(dateStr => {
-                            const d = new Date(dateStr + 'T00:00:00');
-                            const isActive = selectedDate === dateStr;
-                            const isToday = dateStr === new Date().toISOString().split('T')[0];
-                            return (
-                                <button key={dateStr} onClick={() => setSelectedDate(dateStr)}
-                                    style={{
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center',
-                                        padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                                        border: isActive ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
-                                        background: isActive ? 'rgba(229,9,20,0.15)' : 'var(--bg-card)',
-                                        color: isActive ? '#fff' : 'var(--text-secondary)',
-                                        transition: 'all 0.2s ease', minWidth: '65px',
-                                    }}>
-                                    <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: isActive ? 'var(--red-light)' : 'var(--text-muted)' }}>
-                                        {isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}
-                                    </span>
-                                    <span style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                                        {d.getDate()}
-                                    </span>
-                                    <span style={{ fontSize: '0.65rem', color: isActive ? 'var(--red-pale)' : 'var(--text-muted)' }}>
-                                        {d.toLocaleDateString('en-US', { month: 'short' })}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
-
-                {/* Theater Filter */}
-                {theaters.length > 1 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
-                        <button onClick={() => setSelectedTheater('')}
-                            style={{
-                                padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
-                                fontSize: '0.82rem', fontWeight: !selectedTheater ? 700 : 400,
-                                border: !selectedTheater ? '1px solid rgba(251,191,36,0.5)' : '1px solid var(--border)',
-                                background: !selectedTheater ? 'rgba(251,191,36,0.1)' : 'transparent',
-                                color: !selectedTheater ? '#fbbf24' : 'var(--text-secondary)',
-                                transition: 'all 0.2s',
-                            }}>
-                            All Theaters
-                        </button>
-                        {theaters.map(([id, name]) => (
-                            <button key={id} onClick={() => setSelectedTheater(id)}
-                                style={{
-                                    padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
-                                    fontSize: '0.82rem', fontWeight: selectedTheater === id ? 700 : 400,
-                                    border: selectedTheater === id ? '1px solid rgba(251,191,36,0.5)' : '1px solid var(--border)',
-                                    background: selectedTheater === id ? 'rgba(251,191,36,0.1)' : 'transparent',
-                                    color: selectedTheater === id ? '#fbbf24' : 'var(--text-secondary)',
-                                    transition: 'all 0.2s',
-                                }}>
-                                {name}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                {showtimesLoading ? (
-                    <div className="skeleton" style={{ width: '100%', height: '100px' }} />
-                ) : filteredShowtimes.length > 0 ? (
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                        {filteredShowtimes.map(showtime => (
-                            <div key={showtime._id} style={{
-                                background: 'var(--bg-card)',
-                                padding: '1.5rem',
-                                borderRadius: 'var(--radius-md)',
-                                border: '1px solid var(--border)',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                flexWrap: 'wrap',
-                                gap: '1rem'
-                            }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem', color: 'var(--text-primary)' }}>
-                                        {showtime.theaterId?.name || 'Unknown Theater'}
-                                    </h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                        🕐 {showtime.showTime}
-                                        {showtime.showDate && (
-                                            <span style={{ marginLeft: '0.75rem', color: 'var(--text-secondary)' }}>
-                                                📅 {new Date(showtime.showDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </span>
-                                        )}
-                                    </p>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        {showtime.pricing?.vip && <span className="badge badge-red">VIP ₹{showtime.pricing.vip}</span>}
-                                        {showtime.pricing?.premium && <span className="badge badge-red" style={{ opacity: 0.7 }}>Premium ₹{showtime.pricing.premium}</span>}
-                                        {showtime.pricing?.economy && <span className="badge badge-silver">Economy ₹{showtime.pricing.economy}</span>}
-                                    </div>
-                                    <button
-                                        onClick={() => handleBookClick(showtime._id)}
-                                        className="btn-primary"
-                                        style={{ textDecoration: 'none', padding: '0.6rem 1.5rem', cursor: 'pointer' }}
-                                    >
-                                        Ticket →
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border)' }}>
+                {movie.isComingSoon ? (
+                    <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: 'var(--gold)' }}>Releasing Soon!</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-                            {showtimes?.length > 0 ? 'No showtimes for this date/theater combination.' : 'No showtimes currently scheduled for this movie.'}
+                            Showtimes and ticket bookings will be available closer to the release date.
                         </p>
                     </div>
+                ) : (
+                    <>
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Available Showtimes</h2>
+
+                        {/* Date Tabs */}
+                        {dates.length > 0 && (
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+                                {dates.map(dateStr => {
+                                    const d = new Date(dateStr + 'T00:00:00');
+                                    const isActive = selectedDate === dateStr;
+                                    const isToday = dateStr === new Date().toISOString().split('T')[0];
+                                    return (
+                                        <button key={dateStr} onClick={() => setSelectedDate(dateStr)}
+                                            style={{
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                                padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                                                border: isActive ? '1px solid rgba(229,9,20,0.6)' : '1px solid var(--border)',
+                                                background: isActive ? 'rgba(229,9,20,0.15)' : 'var(--bg-card)',
+                                                color: isActive ? '#fff' : 'var(--text-secondary)',
+                                                transition: 'all 0.2s ease', minWidth: '65px',
+                                            }}>
+                                            <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: isActive ? 'var(--red-light)' : 'var(--text-muted)' }}>
+                                                {isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}
+                                            </span>
+                                            <span style={{ fontSize: '1.15rem', fontWeight: 800 }}>
+                                                {d.getDate()}
+                                            </span>
+                                            <span style={{ fontSize: '0.65rem', color: isActive ? 'var(--red-pale)' : 'var(--text-muted)' }}>
+                                                {d.toLocaleDateString('en-US', { month: 'short' })}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Theater Filter */}
+                        {theaters.length > 1 && (
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+                                <button onClick={() => setSelectedTheater('')}
+                                    style={{
+                                        padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
+                                        fontSize: '0.82rem', fontWeight: !selectedTheater ? 700 : 400,
+                                        border: !selectedTheater ? '1px solid rgba(251,191,36,0.5)' : '1px solid var(--border)',
+                                        background: !selectedTheater ? 'rgba(251,191,36,0.1)' : 'transparent',
+                                        color: !selectedTheater ? '#fbbf24' : 'var(--text-secondary)',
+                                        transition: 'all 0.2s',
+                                    }}>
+                                    All Theaters
+                                </button>
+                                {theaters.map(([id, name]) => (
+                                    <button key={id} onClick={() => setSelectedTheater(id)}
+                                        style={{
+                                            padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
+                                            fontSize: '0.82rem', fontWeight: selectedTheater === id ? 700 : 400,
+                                            border: selectedTheater === id ? '1px solid rgba(251,191,36,0.5)' : '1px solid var(--border)',
+                                            background: selectedTheater === id ? 'rgba(251,191,36,0.1)' : 'transparent',
+                                            color: selectedTheater === id ? '#fbbf24' : 'var(--text-secondary)',
+                                            transition: 'all 0.2s',
+                                        }}>
+                                        {name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {showtimesLoading ? (
+                            <div className="skeleton" style={{ width: '100%', height: '100px' }} />
+                        ) : filteredShowtimes.length > 0 ? (
+                            <div style={{ display: 'grid', gap: '1rem' }}>
+                                {filteredShowtimes.map(showtime => (
+                                    <div key={showtime._id} style={{
+                                        background: 'var(--bg-card)',
+                                        padding: '1.5rem',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: '1px solid var(--border)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: '1rem'
+                                    }}>
+                                        <div>
+                                            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem', color: 'var(--text-primary)' }}>
+                                                {showtime.theaterId?.name || 'Unknown Theater'}
+                                            </h3>
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                                🕐 {showtime.showTime}
+                                                {showtime.showDate && (
+                                                    <span style={{ marginLeft: '0.75rem', color: 'var(--text-secondary)' }}>
+                                                        📅 {new Date(showtime.showDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                {showtime.pricing?.vip && <span className="badge badge-red">VIP ₹{showtime.pricing.vip}</span>}
+                                                {showtime.pricing?.premium && <span className="badge badge-red" style={{ opacity: 0.7 }}>Premium ₹{showtime.pricing.premium}</span>}
+                                                {showtime.pricing?.economy && <span className="badge badge-silver">Economy ₹{showtime.pricing.economy}</span>}
+                                            </div>
+                                            <button
+                                                onClick={() => handleBookClick(showtime._id)}
+                                                className="btn-primary"
+                                                style={{ textDecoration: 'none', padding: '0.6rem 1.5rem', cursor: 'pointer' }}
+                                            >
+                                                Ticket →
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border)' }}>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+                                    {showtimes?.length > 0 ? 'No showtimes for this date/theater combination.' : 'No showtimes currently scheduled for this movie.'}
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

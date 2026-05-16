@@ -19,9 +19,17 @@ const movieSchema = new mongoose.Schema({
         type: String,
         enum: ['English', 'Hindi', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Bengali']
     }],
+    format: [{
+        type: String,
+        enum: ['2D', '3D', 'IMAX 2D', 'IMAX 3D', '4DX']
+    }],
     duration: {
         type: Number,  // in min
         required: true
+    },
+    certification: {
+        type: String,
+        trim: true
     },
     releasedDate: {
         type: Date,
@@ -57,6 +65,18 @@ const movieSchema = new mongoose.Schema({
         imageUrl: String
     }],
     director: String,
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    isTrending: {
+        type: Boolean,
+        default: false
+    },
+    isComingSoon: {
+        type: Boolean,
+        default: false
+    },
     isActive: {
         type: Boolean,
         default: true

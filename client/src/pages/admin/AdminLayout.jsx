@@ -5,7 +5,8 @@ import api from '../../api/axios';
 // Links visible only to super admin
 const superAdminLinks = [
     { to: '/admin', label: 'Dashboard', icon: '📊', exact: true },
-    { to: '/admin/add-movie', label: 'Add Movie', icon: '🎬' },
+    { to: '/admin/manage-movies', label: 'Manage Movies', icon: '🎬' },
+    { to: '/admin/add-movie', label: 'Add Movie', icon: '➕' },
     { to: '/admin/theaters', label: 'All Theaters', icon: '🏛️' },
     { to: '/admin/manage-admins?category=partners', label: 'Cinema Partners', icon: '🏛️' },
     { to: '/admin/manage-admins?category=staff', label: 'Staff Accounts', icon: '👥' },

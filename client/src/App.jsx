@@ -2,11 +2,14 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import AdminLayout from './pages/admin/AdminLayout';
 import Home from './pages/Home';
+import Movies from './pages/Movies';
 import MovieInfo from './pages/MovieInfo';
 import MovieShowtimes from './pages/MovieShowtimes';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AddMovie from './pages/admin/AddMovie';
+import ManageMovies from './pages/admin/ManageMovies';
+import EditMovie from './pages/admin/EditMovie';
 import AddShowtime from './pages/admin/AddShowtime';
 import BookingPage from './pages/BookingPage';
 import BookingSuccess from './pages/BookingSuccess';
@@ -23,6 +26,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="movies" element={<Movies />} />
         <Route path="movie/:movieId" element={<MovieInfo />} />
         <Route path="movie/:movieId/showtimes" element={<MovieShowtimes />} />
         <Route path="login" element={<Login />} />
@@ -39,6 +43,8 @@ function App() {
         <Route element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="add-movie" element={<AddMovie />} />
+          <Route path="manage-movies" element={<ManageMovies />} />
+          <Route path="edit-movie/:id" element={<EditMovie />} />
           <Route path="add-showtime" element={<AddShowtime />} />
           <Route path="add-theater" element={<AddTheater />} />
           <Route path="manage-admins" element={<ManageAdmins />} />

@@ -42,13 +42,6 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
 
     return (
         <div style={{ position: 'relative' }}>
-            {pricing && (
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
-                    <span className="badge badge-red">VIP ₹{pricing.vip}</span>
-                    <span className="badge badge-red" style={{ opacity: 0.7 }}>Premium ₹{pricing.premium}</span>
-                    <span className="badge badge-silver">Economy ₹{pricing.economy}</span>
-                </div>
-            )}
             <div 
                 ref={containerRef}
                 onScroll={handleScroll}
@@ -57,12 +50,30 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
                 <div ref={contentRef} style={{ minWidth: 'max-content', padding: '0 1rem', paddingBottom: '2rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
                         <div style={{
-                            height: '35px',
-                            borderTop: '4px solid #fbbf24',
-                            borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
-                            boxShadow: '0 -12px 35px rgba(251,191,36,0.12)',
-                            opacity: 0.8,
-                        }} />
+                            width: '760px',
+                            maxWidth: '94%',
+                            height: '72px',
+                            margin: '0 auto',
+                            background: 'linear-gradient(180deg, #fbd067 0%, #f3a51a 100%)',
+                            border: '2px solid rgba(251, 191, 36, 0.9)',
+                            borderRadius: '28px 28px 64px 64px',
+                            boxShadow: '0 22px 40px rgba(251, 191, 36, 0.2)',
+                            clipPath: 'path("M 0 32 Q 380 0 760 32 L 700 72 Q 380 86 60 72 Z")',
+                            position: 'relative'
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                left: '12px',
+                                right: '12px',
+                                top: '10px',
+                                height: '48px',
+                                background: 'linear-gradient(180deg, rgba(255,236,172,0.95) 0%, rgba(243,165,26,0.45) 100%)',
+                                border: '1px solid rgba(251, 191, 36, 0.65)',
+                                borderRadius: '22px 22px 48px 48px',
+                                clipPath: 'path("M 0 22 Q 360 0 720 22 L 668 48 Q 360 60 52 48 Z")',
+                                opacity: 0.92
+                            }} />
+                        </div>
                         <p style={{ marginTop: '0.6rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                             screen
                         </p>
@@ -72,13 +83,27 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
                         {Object.entries(rows).map(([rowLabel, seats], rowIndex, rowArray) => {
                             const currentCategory = seats[0]?.seatType;
                             const prevCategory = rowIndex > 0 ? rowArray[rowIndex - 1][1][0]?.seatType : null;
-                            const isNewCategory = prevCategory && currentCategory !== prevCategory;
+                            const isNewCategory = rowIndex === 0 || (prevCategory && currentCategory !== prevCategory);
+                            const currentPrice = pricing?.[currentCategory?.toLowerCase()];
 
                             return (
-                                <div key={rowLabel} style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                                    marginTop: isNewCategory ? '1.5rem' : '0'
-                                }}>
+                                <div key={rowLabel} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    {isNewCategory && currentCategory && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', margin: '1.2rem 0 0.6rem' }}>
+                                            <span style={{
+                                                padding: '0.3rem 0.8rem',
+                                                borderRadius: '999px',
+                                                border: '1px solid var(--border)',
+                                                fontSize: '0.75rem',
+                                                color: 'var(--text-secondary)',
+                                                background: 'rgba(10,2,3,0.4)'
+                                            }}>
+                                                {currentCategory} ₹{currentPrice}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
                                     <span style={{ width: '20px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.8rem' }}>{rowLabel}</span>
                                     
                                     <div style={{ display: 'flex', gap: '0.4rem' }}>
@@ -126,6 +151,8 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
                                         })}
                                     </div>
                                     <span style={{ width: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.8rem' }}>{rowLabel}</span>
+                                    </div>
+                                    </div>
                                 </div>
                             );
                         })}
@@ -159,18 +186,34 @@ export default function SeatGrid({ seatStatus, pricing, selectedSeats, lockedSea
                     zIndex: 10
                 }}>
                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <div style={{
+                            position: 'absolute',
+                            left: '8%',
+                            right: '8%',
+                            top: '2%',
+                            height: '6px',
+                            background: '#f5b942',
+                            border: '1px solid rgba(251, 191, 36, 0.9)',
+                            borderRadius: '6px 6px 10px 10px',
+                            clipPath: 'path("M 0 2 Q 42 0 84 2 L 80 6 L 4 6 Z")',
+                            opacity: 0.95
+                        }} />
                         {Object.entries(rows).map(([rowLabel, seats], rowIndex, rowArr) => {
                             const topPct = (rowIndex / (rowArr.length - 1 || 1)) * 100;
                             return seats.map((seat, index) => {
                                 const leftPct = (index / (seats.length - 1 || 1)) * 100;
                                 const isSelected = selectedSeats.includes(seat.seatNumber);
                                 const isSold = seat.status === 'Booked' || seat.status === 'Blocked';
-                                const color = isSelected ? '#fbbf24' : isSold ? '#333' : TYPE_COLORS[seat.seatType] || '#666';
+                                const color = isSelected
+                                    ? '#fbbf24'
+                                    : isSold
+                                        ? '#333'
+                                        : TYPE_COLORS[seat.seatType] || '#666';
                                 return (
                                     <div key={seat.seatNumber} style={{
                                         position: 'absolute',
                                         left: `${leftPct}%`,
-                                        top: `${topPct}%`,
+                                        top: `${14 + topPct * 0.86}%`,
                                         width: '4px', height: '4px',
                                         background: color,
                                         borderRadius: '50%',

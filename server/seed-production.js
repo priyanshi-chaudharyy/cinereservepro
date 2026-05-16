@@ -76,7 +76,7 @@ mongoose.connect(MONGO_URI)
         await Review.deleteMany({});
         console.log('  🗑️  Cleared old movies, theaters, showtimes, reviews');
 
-        const movies = await Movie.create([
+        const moviesSeed = [
             {
                 title: 'Interstellar',
                 description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
@@ -88,7 +88,17 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=zSWdZVtXT7E',
                 director: 'Christopher Nolan',
-                cast: [{ name: 'Matthew McConaughey', role: 'Cooper' }]
+                cast: [
+                    { name: 'Matthew McConaughey', role: 'Cooper', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/matthew-mcconaughey-4593-1648122667.jpg' },
+                    { name: 'Anne Hathaway', role: 'Brand', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/anne-hathaway-191-1774583647.jpg' },
+                    { name: 'Jessica Chastain', role: 'Murph', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/jessica-chastain-21962-24-03-2017-17-30-03.jpg' },
+                    { name: 'Michael Caine', role: 'Professor Brand', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/michael-caine-1449-20-03-2018-12-54-52.jpg' }
+                ],
+                crew: [
+                    { name: 'Christopher Nolan', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/christopher-nolan-448-12-09-2017-06-17-25.jpg' },
+                    { name: 'Hans Zimmer', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hans-zimmer-786-24-03-2017-12-32-04.jpg' },
+                    { name: 'Hoyte van Hoytema', role: 'Cinematography', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hoyte-van-hoytema-iein103023-13-07-2017-12-51-32.jpg' }
+                ]
             },
             {
                 title: 'Dune: Part Two',
@@ -101,7 +111,16 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p26702084_p_v8_aa.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=Way9Dexny3w',
                 director: 'Denis Villeneuve',
-                cast: [{ name: 'Timothée Chalamet', role: 'Paul Atreides' }]
+                cast: [
+                    { name: 'Timothee Chalamet', role: 'Paul Atreides', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/timoth_e-chalamet-1090896-19-02-2019-12-36-29.jpg' },
+                    { name: 'Zendaya', role: 'Chani', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/zendaya-2016258-1684991803.jpg' },
+                    { name: 'Rebecca Ferguson', role: 'Lady Jessica', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/rebecca-ferguson-1048045-24-03-2017-16-12-13.jpg' },
+                    { name: 'Javier Bardem', role: 'Stilgar', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/javier-bardem-7072-1657700208.jpg' }
+                ],
+                crew: [
+                    { name: 'Denis Villeneuve', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/denis-villeneuve-38094-1707799677.jpg' },
+                    { name: 'Hans Zimmer', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hans-zimmer-786-24-03-2017-12-32-04.jpg' }
+                ]
             },
             {
                 title: 'The Dark Knight',
@@ -114,7 +133,17 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/1/1c/The_Dark_Knight_%282008_film%29.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
                 director: 'Christopher Nolan',
-                cast: [{ name: 'Christian Bale', role: 'Bruce Wayne' }]
+                cast: [
+                    { name: 'Christian Bale', role: 'Bruce Wayne', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/christian-bale-440-24-03-2017-12-31-22.jpg' },
+                    { name: 'Heath Ledger', role: 'Joker', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/heath-ledger-805-08-07-2020-02-43-56.jpg' },
+                    { name: 'Aaron Eckhart', role: 'Harvey Dent', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/aaron-eckhart-2754-1667969179.jpg' },
+                    { name: 'Gary Oldman', role: 'Jim Gordon', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/gary-oldman-716-1771394992.jpg' }
+                ],
+                crew: [
+                    { name: 'Christopher Nolan', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/christopher-nolan-448-12-09-2017-06-17-25.jpg' },
+                    { name: 'Emma Thomas', role: 'Producer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/emma-thomas-iein096114-13-07-2017-12-52-40.jpg' },
+                    { name: 'Hans Zimmer', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hans-zimmer-786-24-03-2017-12-32-04.jpg' }
+                ]
             },
             {
                 title: 'Oppenheimer',
@@ -127,7 +156,17 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=uYPbbksJxIg',
                 director: 'Christopher Nolan',
-                cast: [{ name: 'Cillian Murphy', role: 'J. Robert Oppenheimer' }]
+                cast: [
+                    { name: 'Cillian Murphy', role: 'J. Robert Oppenheimer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/cillian-murphy-455-24-03-2017-12-58-10.jpg' },
+                    { name: 'Emily Blunt', role: 'Kitty Oppenheimer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/emily-blunt-4134-1758530443.jpg' },
+                    { name: 'Matt Damon', role: 'Leslie Groves', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/matt-damon-1415-24-03-2017-12-31-21.jpg' },
+                    { name: 'Robert Downey Jr.', role: 'Lewis Strauss', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/robert-downey-jr-1902-17-12-2018-02-26-59.jpg' }
+                ],
+                crew: [
+                    { name: 'Christopher Nolan', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/christopher-nolan-448-12-09-2017-06-17-25.jpg' },
+                    { name: 'Ludwig Goransson', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/ludwig-goransson-1061733-24-03-2017-13-20-15.jpg' },
+                    { name: 'Hoyte van Hoytema', role: 'Cinematography', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hoyte-van-hoytema-iein103023-13-07-2017-12-51-32.jpg' }
+                ]
             },
             {
                 title: 'Inception',
@@ -140,7 +179,16 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
                 director: 'Christopher Nolan',
-                cast: [{ name: 'Leonardo DiCaprio', role: 'Cobb' }]
+                cast: [
+                    { name: 'Leonardo DiCaprio', role: 'Cobb', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/leonardo-dicaprio-1273-06-05-2020-06-55-21.jpg' },
+                    { name: 'Joseph Gordon-Levitt', role: 'Arthur', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/joseph-gordon-levitt-13608-24-03-2017-12-42-16.jpg' },
+                    { name: 'Elliot Page', role: 'Ariadne', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/elliot-page-5394-1658904558.jpg' },
+                    { name: 'Tom Hardy', role: 'Eames', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/tom-hardy-8994-24-03-2017-12-37-04.jpg' }
+                ],
+                crew: [
+                    { name: 'Christopher Nolan', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/christopher-nolan-448-12-09-2017-06-17-25.jpg' },
+                    { name: 'Hans Zimmer', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/hans-zimmer-786-24-03-2017-12-32-04.jpg' }
+                ]
             },
             {
                 title: 'RRR',
@@ -153,7 +201,11 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/d/d7/RRR_Poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=f_vbAtFSEc0',
                 director: 'S.S. Rajamouli',
-                cast: [{ name: 'Ram Charan', role: 'Alluri Sitarama Raju' }]
+                cast: [
+                    { name: 'Ram Charan', role: 'Alluri Sitarama Raju', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/ram-charan-teja-1046368-19-09-2017-02-37-43.jpg' },
+                    { name: 'Alia Bhatt', role: 'Sita', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/alia-bhatt-21065-1685013962.jpg' },
+                    { name: 'Ajay Devgn', role: 'Venkata Rama Raju', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/ajay-devgn-24051-12-09-2017-04-41-13.jpg' }
+                ]
             },
             {
                 title: 'Avatar: The Way of Water',
@@ -166,7 +218,15 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=d9MyW72ELq0',
                 director: 'James Cameron',
-                cast: [{ name: 'Sam Worthington', role: 'Jake Sully' }]
+                cast: [
+                    { name: 'Sam Worthington', role: 'Jake Sully', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/sam-worthington-12089-24-03-2017-12-32-07.jpg' },
+                    { name: 'Zoe Saldana', role: 'Neytiri', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/zoe-saldana-3261-13-10-2017-03-54-34.jpg' },
+                    { name: 'Sigourney Weaver', role: 'Kiri', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/sigourney-weaver-3258-24-03-2017-17-32-08.jpg' },
+                    { name: 'Stephen Lang', role: 'Quaritch', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/stephen-lang-15008-24-03-2017-12-44-36.jpg' }
+                ],
+                crew: [
+                    { name: 'James Cameron', role: 'Director', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/james-cameron-5030-13-09-2017-01-57-54.jpg' }
+                ]
             },
             {
                 title: 'Spider-Man: Across the Spider-Verse',
@@ -179,7 +239,16 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/b/b4/Spider-Man-_Across_the_Spider-Verse_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=shW9i6k8cB0',
                 director: 'Joaquim Dos Santos',
-                cast: [{ name: 'Shameik Moore', role: 'Miles Morales' }]
+                cast: [
+                    { name: 'Shameik Moore', role: 'Miles Morales', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/shameik-moore-1096516-26-10-2018-14-39-27.jpg' },
+                    { name: 'Hailee Steinfeld', role: 'Gwen Stacy', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/hailee-steinfeld-21087-26-10-2017-11-47-07.jpg' },
+                    { name: 'Oscar Isaac', role: 'Miguel O Hara', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/oscar-isaac-7068-24-03-2017-15-48-32.jpg' },
+                    { name: 'Jake Johnson', role: 'Peter B. Parker', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/jake-johnson-39023-13-04-2017-18-09-33.jpg' }
+                ],
+                crew: [
+                    { name: 'Joaquim Dos Santos', role: 'Director', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/joaquim-dos-santos-2024582-1671020956.jpg' },
+                    { name: 'Amy Pascal', role: 'Producer', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/amy-pascal-1084057-08-11-2017-12-48-54.jpg' }
+                ]
             },
             {
                 title: 'Avengers: Endgame',
@@ -192,7 +261,17 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=TcMBFSGVi1c',
                 director: 'Anthony Russo, Joe Russo',
-                cast: [{ name: 'Robert Downey Jr.', role: 'Tony Stark' }]
+                cast: [
+                    { name: 'Robert Downey Jr.', role: 'Tony Stark', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/robert-downey-jr-1902-17-12-2018-02-26-59.jpg' },
+                    { name: 'Chris Evans', role: 'Steve Rogers', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/chris-evans-430-22-12-2017-10-13-37.jpg' },
+                    { name: 'Scarlett Johansson', role: 'Natasha Romanoff', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/scarlett-johansson-2067-22-12-2017-09-56-57.jpg' },
+                    { name: 'Chris Hemsworth', role: 'Thor', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/chris-hemsworth-24185-24-03-2017-12-37-46.jpg' }
+                ],
+                crew: [
+                    { name: 'Anthony Russo', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/anthony-russo-201-24-03-2017-15-21-49.jpg' },
+                    { name: 'Joe Russo', role: 'Director', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/joe-russo-1010-24-03-2017-15-20-22.jpg' },
+                    { name: 'Alan Silvestri', role: 'Composer', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/alan-silvestri-99-24-03-2017-12-39-31.jpg' }
+                ]
             },
             {
                 title: 'The Matrix',
@@ -205,9 +284,26 @@ mongoose.connect(MONGO_URI)
                 posterUrl: 'https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg',
                 trailerUrl: 'https://www.youtube.com/watch?v=vKQi3bBA1y8',
                 director: 'Lana Wachowski, Lilly Wachowski',
-                cast: [{ name: 'Keanu Reeves', role: 'Neo' }]
+                cast: [
+                    { name: 'Keanu Reeves', role: 'Neo', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/keanu-reeves-1178-24-03-2017-13-51-06.jpg' },
+                    { name: 'Carrie-Anne Moss', role: 'Trinity', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/carrie-anne-moss-392-24-03-2017-17-29-21.jpg' },
+                    { name: 'Laurence Fishburne', role: 'Morpheus', imageUrl: 'https://in.bmscdn.com/iedb/artist/images/website/poster/large/laurence-fishburne-1264-1771232678.jpg' },
+                    { name: 'Hugo Weaving', role: 'Agent Smith', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/hugo-weaving-837-24-03-2017-12-42-16.jpg' }
+                ],
+                crew: [
+                    { name: 'Lana Wachowski', role: 'Director', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/lana-wachowski-31019-24-03-2017-12-39-30.jpg' },
+                    { name: 'Don Davis', role: 'Composer', imageUrl: 'https://assets-in.bmscdn.com/iedb/artist/images/website/poster/large/don-davis-iein003709-24-03-2017-12-51-31.jpg' }
+                ]
             }
-        ]);
+        ];
+
+        const normalizedMovies = moviesSeed.map(movie => ({
+            ...movie,
+            cast: (movie.cast || []).map(member => ({ ...member, imageUrl: member.imageUrl ?? '' })),
+            crew: (movie.crew || []).map(member => ({ ...member, imageUrl: member.imageUrl ?? '' })),
+        }));
+
+        const movies = await Movie.create(normalizedMovies);
         console.log(`  ✅ ${movies.length} movies created`);
 
         // ============================================

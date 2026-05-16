@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
@@ -49,8 +50,17 @@ export default function Layout() {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleGlobalSearch = (e) => {
+    if (e.key === 'Enter' && globalSearch.trim()) {
+      navigate(`/movies?search=${encodeURIComponent(globalSearch.trim())}`);
+      setGlobalSearch('');
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -60,6 +70,7 @@ export default function Layout() {
 
   // Fetch current user on mount and when route changes (e.g., after login/signup)
   useEffect(() => {
+    window.scrollTo(0, 0);
     api.get('/api/auth/me')
       .then(res => setUser(res.data.data))
       .catch(() => setUser(null))
@@ -71,6 +82,7 @@ export default function Layout() {
       await api.post('/api/auth/logout');
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
+      queryClient.clear();
       setUser(null);
       toast.success('Logged out successfully');
       navigate('/');
@@ -112,6 +124,25 @@ export default function Layout() {
 
           {/* Nav */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', marginRight: '10px' }}>
+              <span style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.9rem', pointerEvents: 'none' }}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search movies..."
+                value={globalSearch}
+                onChange={e => setGlobalSearch(e.target.value)}
+                onKeyDown={handleGlobalSearch}
+                style={{
+                  width: '180px', padding: '0.45rem 1rem 0.45rem 2.2rem',
+                  borderRadius: '999px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)',
+                  color: 'var(--text-primary)', fontFamily: 'var(--font-main)', fontSize: '0.85rem', outline: 'none',
+                  transition: 'all 0.2s',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'rgba(229,9,20,0.5)'; e.target.style.width = '220px'; e.target.style.background = 'rgba(255,255,255,0.1)'; }}
+                onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.width = '180px'; e.target.style.background = 'rgba(255,255,255,0.06)'; }}
+              />
+            </div>
+            
             <NavPill to="/" label="Home" active={location.pathname === '/'} />
 
             {authChecked && user ? (
@@ -193,8 +224,8 @@ export default function Layout() {
 
       <main><Outlet /></main>
 
-      <footer style={{ borderTop: '1px solid rgba(229,9,20,0.15)', padding: '2.2rem 0', marginTop: '4rem', background: 'radial-gradient(circle at top, rgba(229,9,20,0.08), transparent 60%)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+      <footer style={{ borderTop: '1px solid rgba(229,9,20,0.15)', padding: '2.4rem 0 1.4rem', marginTop: '4rem', background: 'radial-gradient(circle at top, rgba(229,9,20,0.08), transparent 60%)' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.9fr 1fr', gap: '1.6rem', alignItems: 'start' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.8rem' }}>
               <ReelIcon />
@@ -202,8 +233,8 @@ export default function Layout() {
                 CINERESERVE PRO
               </span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>
-              Premium cinema booking made simple.
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.6, maxWidth: '280px' }}>
+              Premium cinema booking made simple. Fast tickets, verified theaters, and seamless seats.
             </p>
           </div>
 
@@ -221,23 +252,38 @@ export default function Layout() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               <span>help@cinereserve.pro</span>
               <span>+91 90000 00000</span>
-              <span>Terms & Conditions</span>
-              <span>Privacy Policy</span>
+              <Link to="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link>
+              <Link to="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
             </div>
           </div>
 
           <div>
             <div style={{ fontWeight: 700, marginBottom: '0.7rem' }}>Follow Us</div>
             <div style={{ display: 'flex', gap: '0.6rem' }}>
-              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>IG</span>
-              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>FB</span>
-              <span style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>X</span>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram" style={{ width: '34px', height: '34px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" />
+                </svg>
+              </a>
+              <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook" style={{ width: '34px', height: '34px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M13.5 9.5V8.3c0-.7.4-1.1 1.1-1.1h1.6V4.5h-2.4c-2.4 0-3.7 1.5-3.7 3.6v1.4H8v2.6h2.1V19.5h3.4v-7.4h2.3l.4-2.6h-2.7z" />
+                </svg>
+              </a>
+              <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X" style={{ width: '34px', height: '34px', borderRadius: '50%', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.5 3h2.7l-6.1 7 7.2 11h-5.7l-4.4-6.4-5.6 6.4H3l6.5-7.5L2.6 3h5.8l4 5.8L18.5 3z" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '1.6rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-          The premium way to reserve your cinema seat. © {new Date().getFullYear()}
+        <div className="container" style={{ marginTop: '1.6rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+          <span>© {new Date().getFullYear()} Cinereserve Pro. All rights reserved.</span>
+          <span>Terms • Privacy • Contact</span>
         </div>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { movieAPI, theaterAPI } from '../services/api';
@@ -23,49 +23,59 @@ function SkeletonCard() {
   );
 }
 
-const chipStyle = (active) => ({
-  whiteSpace: 'nowrap',
-  padding: '0.38rem 1.05rem',
-  borderRadius: '999px',
-  cursor: 'pointer',
-  fontFamily: 'var(--font-main)',
-  fontWeight: active ? 700 : 400,
-  fontSize: '0.83rem',
-  transition: 'all 0.18s ease',
-  background: active ? 'rgba(229,9,20,0.18)' : 'transparent',
-  border: active ? '1px solid rgba(229,9,20,0.5)' : '1px solid var(--border)',
-  color: active ? 'var(--red-light)' : 'var(--text-secondary)',
-});
+function MovieCarousel({ title, movies, loading, selectedLocation }) {
+  const scrollRef = useRef(null);
 
-const selectStyle = {
-  padding: '0.6rem 2rem 0.6rem 1rem',
-  borderRadius: '999px',
-  background: 'rgba(28,5,10,0.8)',
-  border: '1px solid var(--border)',
-  color: 'var(--text-secondary)',
-  fontFamily: 'var(--font-main)',
-  fontSize: '0.85rem',
-  fontWeight: 500,
-  outline: 'none',
-  cursor: 'pointer',
-  appearance: 'none',
-  WebkitAppearance: 'none',
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239e7a7d'/%3E%3C/svg%3E")`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 0.75rem center',
-};
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -600 : 600;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  if (!loading && (!movies || movies.length === 0)) return null;
+
+  return (
+    <section className="section" style={{ paddingTop: '2rem', paddingBottom: '1rem' }}>
+      <div className="container" style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', borderLeft: '4px solid var(--red)', paddingLeft: '0.8rem' }}>{title}</h2>
+          </div>
+          <Link to={`/movies?category=${title.replace(' ', '').toLowerCase()}`} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            See All <span style={{ fontSize: '1rem', color: 'var(--red-light)' }}>›</span>
+          </Link>
+        </div>
+
+        {/* Left Arrow */}
+        <button onClick={() => scroll('left')} style={{ position: 'absolute', left: '-20px', top: '55%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(28,28,34,0.95)', border: '1px solid var(--border)', color: 'white', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.5)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='var(--red)'} onMouseLeave={e => e.currentTarget.style.background='rgba(28,28,34,0.95)'}>
+          <span style={{ marginLeft: '-2px' }}>❮</span>
+        </button>
+
+        {/* Horizontal scroll container */}
+        <div ref={scrollRef} style={{ display: 'flex', gap: '1.25rem', overflowX: 'auto', paddingBottom: '1.5rem', scrollbarWidth: 'none', scrollSnapType: 'x mandatory', msOverflowStyle: 'none' }}>
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => <div key={i} style={{ width: '240px', flex: '0 0 auto' }}><SkeletonCard /></div>)
+          ) : (
+            movies.map(movie => (
+              <div key={movie._id} style={{ width: '240px', flex: '0 0 auto', scrollSnapAlign: 'start' }}>
+                <MovieCard movie={movie} selectedLocation={selectedLocation} />
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Right Arrow */}
+        <button onClick={() => scroll('right')} style={{ position: 'absolute', right: '-20px', top: '55%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(28,28,34,0.95)', border: '1px solid var(--border)', color: 'white', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.5)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='var(--red)'} onMouseLeave={e => e.currentTarget.style.background='rgba(28,28,34,0.95)'}>
+          <span style={{ marginRight: '-2px' }}>❯</span>
+        </button>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [selectedGenres, setSelectedGenres] = useState(
-    (searchParams.get('genres') || '')
-      .split(',')
-      .map(g => g.trim())
-      .filter(Boolean)
-  );
-  const [selectedLanguage, setSelectedLanguage] = useState(searchParams.get('language') || '');
-  const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -77,265 +87,155 @@ export default function Home() {
     staleTime: 60_000,
   });
 
-  const { data: locations } = useQuery({
-    queryKey: ['locations'],
+
+
+  // Featured Movies (Ignore filters)
+  const { data: featuredMovies } = useQuery({
+    queryKey: ['movies', 'featured'],
     queryFn: async () => {
-      const res = await theaterAPI.getLocations();
+      const res = await movieAPI.getAll({ isFeatured: true, isActive: true });
       return res.data.data;
     },
-    staleTime: Infinity
+    staleTime: 60_000,
   });
 
-  const { data: movies, isLoading, error } = useQuery({
-    queryKey: ['movies', search, selectedGenres, selectedLanguage, selectedLocation],
+  // Trending Movies (Ignore filters)
+  const { data: trendingMovies } = useQuery({
+    queryKey: ['movies', 'trending'],
+    queryFn: async () => {
+      const res = await movieAPI.getAll({ isTrending: true, isActive: true });
+      return res.data.data;
+    },
+    staleTime: 60_000,
+  });
+
+  // Now Showing Movies (No filters on Home page)
+  const { data: nowShowingMovies, isLoading: loadingNowShowing } = useQuery({
+    queryKey: ['movies', 'nowShowing'],
     queryFn: async () => {
       const res = await movieAPI.getAll({
-        search: search || undefined,
-        genre: selectedGenres.length > 0 ? selectedGenres.join(',') : undefined,
-        language: selectedLanguage || undefined,
-        location: selectedLocation || undefined,
+        isComingSoon: false,
+        isActive: true
       });
       return res.data.data;
     },
     staleTime: 60_000,
   });
 
-  const toggleGenre = (g) => {
-    if (g === 'All') {
-      setSelectedGenres([]);
-      return;
-    }
-    setSelectedGenres(prev => 
-      prev.includes(g) ? prev.filter(genre => genre !== g) : [...prev, g]
-    );
-  };
+  // Coming Soon Movies (No filters on Home page)
+  const { data: comingSoonMovies, isLoading: loadingComingSoon } = useQuery({
+    queryKey: ['movies', 'comingSoon'],
+    queryFn: async () => {
+      const res = await movieAPI.getAll({
+        isComingSoon: true,
+        isActive: true
+      });
+      return res.data.data;
+    },
+    staleTime: 60_000,
+  });
 
+
+
+  // Auto-advance Carousel
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (selectedGenres.length > 0) params.set('genres', selectedGenres.join(','));
-    if (selectedLanguage) params.set('language', selectedLanguage);
-    if (selectedLocation) params.set('location', selectedLocation);
-    const next = params.toString();
-    const current = searchParams.toString();
-    if (next !== current) {
-      setSearchParams(params, { replace: true });
-    }
-  }, [search, selectedGenres, selectedLanguage, selectedLocation, searchParams, setSearchParams]);
+    if (!featuredMovies || featuredMovies.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % featuredMovies.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [featuredMovies]);
 
-  const clearFilters = () => { setSearch(''); setSelectedGenres([]); setSelectedLanguage(''); setSelectedLocation(''); };
-  const hasFilters = search || selectedGenres.length > 0 || selectedLanguage || selectedLocation;
   const isAdminUser = currentUser?.role === 'admin' || currentUser?.role === 'theater_admin';
 
   return (
     <div>
-      {/* ═══════════════ HERO ═══════════════ */}
-      <section style={{
+      {/* Container for Gradient Background (Hero + Search) */}
+      <div style={{
         position: 'relative',
-        overflow: 'hidden',
         background: 'var(--bg-base)',
-        backgroundImage: 'radial-gradient(ellipse at 20% 10%, rgba(140,0,6,0.55) 0%, transparent 55%), radial-gradient(ellipse at 80% 90%, rgba(90,0,3,0.35) 0%, transparent 50%)',
-        padding: '5rem 0 3.5rem',
+        backgroundImage: 'radial-gradient(ellipse at 20% 10%, rgba(140,0,6,0.55) 0%, transparent 60%), radial-gradient(ellipse at 80% 90%, rgba(90,0,3,0.35) 0%, transparent 60%)',
       }}>
-        {/* Scan line texture */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.006) 3px, rgba(255,255,255,0.006) 4px)', pointerEvents: 'none' }} />
-
-        <div className="container" style={{ position: 'relative', textAlign: 'center' }}>
-
-          {/* "NOW SHOWING" badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 16px', borderRadius: '999px', background: 'rgba(229,9,20,0.15)', border: '1px solid rgba(229,9,20,0.35)', marginBottom: '1.5rem' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'rotate(-45deg)' }}>
-              <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="5" x2="8" y2="19"></line>
-            </svg>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--red-light)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Now Showing</span>
-          </div>
-
-          {/* Headline */}
-          <h1 style={{ fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '1.25rem' }}>
-            The Best Seats in the{' '}
-            <span className="gradient-text">Cinema</span>
-            <br />Are Waiting for You
-          </h1>
-
-          <p style={{ fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)', color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 2.25rem', lineHeight: 1.75 }}>
-            Browse the latest blockbusters, pick your perfect seats, and book in
-            seconds — no queues, no hassle.
-          </p>
-
-          {/* ── Search bar ── */}
-          <div style={{ maxWidth: '700px', margin: '0 auto 1.5rem', display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <div style={{ position: 'relative', flex: '1 1 300px', minWidth: '250px' }}>
-              <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '1rem', pointerEvents: 'none' }}>🔍</span>
-              <input
-                type="text"
-                placeholder="Search movies by title..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{
-                  width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem',
-                  borderRadius: '999px',
-                  background: 'rgba(28,5,10,0.85)',
-                  border: '1px solid rgba(229,9,20,0.2)',
-                  color: 'var(--text-primary)',
-                  fontFamily: 'var(--font-main)', fontSize: '0.95rem', outline: 'none',
-                  transition: 'border-color 0.2s, box-shadow 0.2s',
-                  backdropFilter: 'blur(12px)',
-                }}
-                onFocus={e => { e.target.style.borderColor = 'rgba(229,9,20,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(229,9,20,0.1)'; }}
-                onBlur={e => { e.target.style.borderColor = 'rgba(229,9,20,0.2)'; e.target.style.boxShadow = 'none'; }}
-              />
-            </div>
-            
-            {/* Location dropdown */}
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <select
-                value={selectedLocation}
-                onChange={e => setSelectedLocation(e.target.value)}
-                style={{ ...selectStyle, borderColor: selectedLocation ? 'rgba(251,191,36,0.4)' : 'rgba(229,9,20,0.2)', color: selectedLocation ? '#fbbf24' : 'var(--text-secondary)' }}
-              >
-                <option value="">📍 Any Location</option>
-                {locations?.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-              </select>
-            </div>
-
-            {/* Language dropdown */}
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <select
-                value={selectedLanguage}
-                onChange={e => setSelectedLanguage(e.target.value)}
-                style={{ ...selectStyle, borderColor: selectedLanguage ? 'rgba(251,191,36,0.4)' : 'rgba(229,9,20,0.2)', color: selectedLanguage ? '#fbbf24' : 'var(--text-secondary)' }}
-              >
-                <option value="">🌐 Language</option>
-                {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* ── Genre chips ── */}
-          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '700px', margin: '0 auto' }}>
-            {['All', ...GENRES].map(g => (
-              <button key={g} onClick={() => toggleGenre(g)}
-                style={chipStyle((g === 'All' && selectedGenres.length === 0) || selectedGenres.includes(g))}>
-                {g}
-              </button>
+        
+        {/* ═══════════════ FEATURED HERO CAROUSEL ═══════════════ */}
+        {featuredMovies && featuredMovies.length > 0 && (
+          <section style={{ position: 'relative', height: 'calc(100vh - 75px)', minHeight: '600px', width: '100%', overflow: 'hidden', background: '#000' }}>
+            {featuredMovies.map((movie, idx) => (
+              <div key={movie._id} style={{
+                position: 'absolute', inset: 0, opacity: currentSlide === idx ? 1 : 0, transition: 'opacity 1s ease-in-out', zIndex: currentSlide === idx ? 1 : 0
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: `url(${movie.posterUrl}) center 20% / cover no-repeat`, opacity: 0.35 }} />
+                <div className="container" style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', gap: '3rem' }}>
+                  <img src={movie.posterUrl} alt={movie.title} style={{ width: '250px', borderRadius: '12px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', zIndex: 2, display: 'none' }} className="d-md-block" />
+                  <div style={{ zIndex: 2, maxWidth: '600px' }}>
+                    <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, marginBottom: '0.5rem', lineHeight: 1.1 }}>{movie.title}</h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{movie.description}</p>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <Link to={`/movie/${movie._id}`} className="btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }}>
+                        {movie.isComingSoon ? 'View Details' : 'Book Tickets'}
+                      </Link>
+                      <div style={{ color: 'var(--gold)', fontWeight: 700 }}>⭐ {movie.rating || 'N/A'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-            {hasFilters && (
-              <button onClick={clearFilters} style={{ ...chipStyle(false), color: '#fbbf24', borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.07)' }}>
-                ✕ Clear
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom fade */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px', background: 'linear-gradient(to bottom, transparent, var(--bg-base))', pointerEvents: 'none' }} />
-      </section>
+            {/* Carousel dots */}
+            <div style={{ position: 'absolute', bottom: '20px', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+              {featuredMovies.map((_, idx) => (
+                <button key={idx} onClick={() => setCurrentSlide(idx)} style={{ width: '10px', height: '10px', borderRadius: '50%', background: currentSlide === idx ? 'var(--red)' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} />
+              ))}
+            </div>
+            {/* Bottom fade */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '150px', background: 'linear-gradient(to bottom, transparent, var(--bg-base))', zIndex: 5, pointerEvents: 'none' }} />
+          </section>
+        )}
+      </div> {/* End of Gradient Background */}
 
       {/* ═══════════════ ADMIN QUICK-ACCESS ═══════════════ */}
       {isAdminUser && (
-        <div style={{ position: 'relative', zIndex: 10, marginTop: '-30px', marginBottom: '2rem', padding: '0 1.5rem' }}>
+        <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem', marginBottom: '2rem', marginTop: '2rem' }}>
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <Link to="/admin" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '1rem 1.5rem',
-              borderRadius: '999px',
-              background: 'rgba(20, 5, 8, 0.75)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(229,9,20,0.3)',
-              textDecoration: 'none',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem',
+              borderRadius: '999px', background: 'rgba(20, 5, 8, 0.75)', border: '1px solid rgba(229,9,20,0.3)',
+              textDecoration: 'none', transition: 'all 0.3s', cursor: 'pointer',
             }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(229,9,20,0.6)';
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 12px 30px rgba(229,9,20,0.2), inset 0 1px 1px rgba(255,255,255,0.1)';
-                e.currentTarget.style.background = 'rgba(30, 8, 12, 0.85)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(229,9,20,0.3)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)';
-                e.currentTarget.style.background = 'rgba(20, 5, 8, 0.75)';
-              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(229,9,20,0.6)'; e.currentTarget.style.background = 'rgba(30, 8, 12, 0.85)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(229,9,20,0.3)'; e.currentTarget.style.background = 'rgba(20, 5, 8, 0.75)'; }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: '38px', height: '38px', borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #e50914 0%, #b81d24 100%)',
-                  color: 'white', fontSize: '1.1rem',
-                  boxShadow: '0 2px 10px rgba(229,9,20,0.4)'
-                }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, #e50914 0%, #b81d24 100%)', color: 'white', fontSize: '1.1rem' }}>
                   {currentUser?.role === 'admin' ? '⚙' : '🏛️'}
                 </div>
                 <div>
-                  <p style={{
-                    fontSize: '0.95rem', fontWeight: 700,
-                    color: '#fff', letterSpacing: '0.02em',
-                    marginBottom: '0.1rem',
-                  }}>
+                  <p style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', marginBottom: '0.1rem' }}>
                     {currentUser?.role === 'admin' ? 'Super Admin Dashboard' : 'Partner Dashboard'}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
-                    {currentUser?.role === 'admin'
-                      ? 'Manage platform data'
-                      : 'Manage theaters & showtimes'}
+                    {currentUser?.role === 'admin' ? 'Manage platform data' : 'Manage theaters & showtimes'}
                   </p>
                 </div>
               </div>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-                color: 'var(--red-light)', fontSize: '0.85rem', fontWeight: 600
-              }}>
-                Enter Panel <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s' }}>→</span>
-              </div>
+              <div style={{ color: 'var(--red-light)', fontSize: '0.85rem', fontWeight: 600 }}>Enter Panel →</div>
             </Link>
           </div>
         </div>
       )}
 
-      {/* ═══════════════ MOVIE GRID ═══════════════ */}
-      <section className="section">
-        <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.3rem' }}>
-              {selectedGenres.length > 0 || selectedLanguage || selectedLocation
-                ? [selectedLocation, ...selectedGenres, selectedLanguage].filter(Boolean).join(' · ')
-                : 'All Movies'}
-              {!isLoading && movies && (
-                <span className="badge badge-silver" style={{ marginLeft: '0.6rem', verticalAlign: 'middle' }}>{movies.length}</span>
-              )}
-            </h2>
-          </div>
+      {/* ═══════════════ MOVIE SECTIONS ═══════════════ */}
+      {trendingMovies && trendingMovies.length > 0 && (
+        <MovieCarousel title="Trending Now" movies={trendingMovies} />
+      )}
 
-          {error && (
-            <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(229,9,20,0.06)', border: '1px solid rgba(229,9,20,0.18)', borderRadius: 'var(--radius-md)', color: 'var(--red-light)', marginBottom: '2rem' }}>
-              ⚠️ Could not load movies — make sure the backend server is running.
-            </div>
-          )}
+      <MovieCarousel title="Now Showing" movies={nowShowingMovies} loading={loadingNowShowing} />
+      <MovieCarousel title="Coming Soon" movies={comingSoonMovies} loading={loadingComingSoon} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: '1.35rem' }}>
-            {isLoading
-              ? Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
-              : movies?.length === 0
-                ? (
-                  <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem 2rem', color: 'var(--text-muted)' }}>
-                    <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎭</div>
-                    <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>No movies found</p>
-                    <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Try adjusting your filters</p>
-                  </div>
-                )
-                : movies?.map(movie => <MovieCard key={movie._id} movie={movie} selectedLocation={selectedLocation} />)
-            }
-          </div>
-        </div>
-      </section>
-
-      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        div::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }

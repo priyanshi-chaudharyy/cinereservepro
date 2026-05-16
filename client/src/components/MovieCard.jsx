@@ -59,6 +59,9 @@ export default function MovieCard({ movie, selectedLocation }) {
         {movie.duration && (
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
             ⏱ {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+            {movie.certification && (
+              <span style={{ marginLeft: '8px', color: 'var(--text-muted)' }}>· {movie.certification}</span>
+            )}
             {movie.language?.[0] && <span style={{ marginLeft: '8px', color: 'var(--text-muted)' }}>· {movie.language[0]}</span>}
           </p>
         )}
